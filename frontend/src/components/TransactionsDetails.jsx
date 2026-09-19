@@ -139,7 +139,7 @@ const TransactionsDetails = ({ item, onClose, deleteTransaction,handleUpdateTran
           <p className="font-bold text-black">Mo ta:</p>
           <div className="flex justify-between sufont-medium text-black bg-[#EBF0F5] px-2 py-0.5 rounded-xl">
             <p className={cn("text-xl ", isRewriteEnable ? "hidden": "")}>{spendingDesc ? spendingDesc : "Khong"}</p>
-             <input type="text" placeholder="Nhap mo ta ..."  className={cn(" outline-none focus:outline-none focus:ring-0 flex-1", isRewriteEnable ? "": "hidden") } onChange={(e)=> setSpendingName((e.target.value))}/>
+             <input type="text" placeholder="Nhap mo ta ..."  className={cn(" outline-none focus:outline-none focus:ring-0 flex-1", isRewriteEnable ? "": "hidden") } onChange={(e)=> setSpendingDesc((e.target.value))}/>
           </div>
           
         </div>
