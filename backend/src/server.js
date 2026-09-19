@@ -30,9 +30,11 @@ app.use(express.json());
 
 app.use("/api/spending", spendingRoutes);
 if (process.env.NODE_ENV==='production') {
-  app.use(express.static(path.join(__dirname,"../frontend/dist")));
+  const frontendDistPath = path.join(__dirname, "frontend", "dist");
+
+  app.use(express.static(frontendDistPath));
 app.get("/*path", (req,res)=> {
-  res.sendFile(path.join(__dirname,"../frontend/dist/index.html"))
+  res.sendFile(path.join(frontendDistPath, "index.html"));
 })
 }
 connectDB().then(() => {
