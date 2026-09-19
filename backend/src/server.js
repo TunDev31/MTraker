@@ -4,13 +4,20 @@ import spendingRoutes from "./Routes/spendingRoutes.js";
 import dns from "dns";
 import { connectDB } from "./Lib/db.js";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
 dns.setServers(["8.8.8.8"]);
 dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 5001;
-import path from "path";
-// app.use(cors({origin: 'http://localhost:5173'})); // Allow
-const __dirname = path.resolve();
+
+// Xác định thư mục chuẩn theo vị trí file hiện tại
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename); // backend/src
+const frontendDistPath = path.resolve(__dirname, "../../frontend/dist"); // Trỏ đúng về frontend/dist
+
 app.use(
   cors({
     origin: [
@@ -29,14 +36,17 @@ app.use(
 app.use(express.json());
 
 app.use("/api/spending", spendingRoutes);
-if (process.env.NODE_ENV==='production') {
-  const frontendDistPath = path.join(__dirname, "frontend", "dist");
 
+// Phục vụ frontend tĩnh khi ở môi trường production
+if (process.env.NODE_ENV === "production") {
   app.use(express.static(frontendDistPath));
-app.get("/*path", (req,res)=> {
-  res.sendFile(path.join(frontendDistPath, "index.html"));
-})
+
+  // Express 5 wildcard route
+  app.get("{*path}", (req, res) => {
+    res.sendFile(path.join(frontendDistPath, "index.html"));
+  });
 }
+
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
