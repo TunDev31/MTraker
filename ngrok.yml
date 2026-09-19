@@ -1,0 +1,10 @@
+version: "2"
+authtoken: 3JOaoDt1U3f6UixrqnKcacsMyB2_2RBjgT37mgGUQdguoZ5L3
+tunnels:
+  backend:
+    proto: http
+    addr: 5001
+    domain: wildness-alfalfa-boggle.ngrok-free.dev
+  frontend:
+    proto: http
+    addr: 5173
