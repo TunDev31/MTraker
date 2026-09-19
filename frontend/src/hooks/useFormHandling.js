@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
-
+import api from "@/lib/axios";
 export const useFormHandling = (setTransactions, setIsOpenForm) => {
   const [selectedType, setSelectedType] = useState("expense");
   const [selectedCashType, setSelectedCashType] = useState("cash");
@@ -36,7 +36,7 @@ export const useFormHandling = (setTransactions, setIsOpenForm) => {
         toast("So tien khong hop le!");
         return;
       }
-      const res = await axios.post(`${API_URL}/api/spending`, {
+      const res = await api.post("/spending", {
         title: spendingName,
         description: spendingDesc,
         amount: spendingAmount,
