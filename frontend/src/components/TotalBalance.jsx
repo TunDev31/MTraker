@@ -25,6 +25,7 @@ const TotalBalance = ({
 
   
   const {
+    userChoice,
     currUserWallet,
     setUserChoice,
     setUserAmount,
@@ -194,6 +195,7 @@ const TotalBalance = ({
                     type="radio"
                     id="exNout"
                     name="exNin"
+                    checked={userChoice === "insert"}
                     onChange={(e) => setUserChoice(e.target.value)}
                     value="expense"
                     className=" bg-[#2a2b30] border border-gray-700 focus:border-[#ccff00] focus:outline-none text-white text-sm rounded-xl px-3.5 py-2.5 transition-colors placeholder-gray-500"
@@ -204,6 +206,7 @@ const TotalBalance = ({
                     type="number"
                     id="expenseAmount"
                     name="expenseAmount"
+                    checked={userChoice === "insert"}
                     placeholder="Nhập số tiền cần Rút/Nạp"
                     onChange={(e) => setUserAmount(Number(e.target.value))}
                     className="w-full bg-[#2a2b30] border border-gray-700 focus:border-[#ccff00] focus:outline-none text-white text-sm rounded-xl px-3.5 py-2.5 transition-colors placeholder-gray-500"

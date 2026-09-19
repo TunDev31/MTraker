@@ -3,7 +3,7 @@ import { updateUserWallet } from "@/utils/WalletUtils/walletUtils";
 import { useMemo, useState } from "react";
 
 export const useWalletTransactions = (userWallet,setUserWallet, selectedWallet,totalExpense,totalIncome) => {
-    const [userChoice, setUserChoice] = useState("expense");
+    const [userChoice, setUserChoice] = useState("insert");
     const [userAmount, setUserAmount] = useState(0);
     const currUserWallet = useMemo(()=>{
       const userWalletOrg = userWallet.get(selectedWallet)?.balance ?? 0;
@@ -28,5 +28,5 @@ export const useWalletTransactions = (userWallet,setUserWallet, selectedWallet,t
           updateUserWallet(setUserWallet, selectedWallet, currUserWallet.userWalletOrg + userAmount);
         }
       }
-    return {currUserWallet,setUserChoice,setUserAmount,handleInsertTransaction};
+    return {userChoice,currUserWallet,setUserChoice,setUserAmount,handleInsertTransaction};
 }
