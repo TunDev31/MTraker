@@ -43,6 +43,7 @@ const TransactionsDetails = ({ item, onClose, deleteTransaction,handleUpdateTran
     spendingDesc,
     selectedType,
     selectedTag,
+    selectedCashType,
       setSelectedType,
       setSelectedCashType,
       setSpendingName,
@@ -114,10 +115,10 @@ const TransactionsDetails = ({ item, onClose, deleteTransaction,handleUpdateTran
           </div>
           <div className="flex flex-col gap-1">
             <p className=" text-black">Phương thức giao dịch:</p>
-            <div className="flex justify-between sufont-medium text-black bg-[#EBF0F5] px-2 py-0.5 rounded-xl">
-              <p className={cn("flex", isRewriteEnable ? 'hidden': "")}>{selectedType}</p>
+            <div className="flex justify-center items-center font-medium text-black bg-[#EBF0F5] px-2 py-0.5 rounded-xl">
+              <p className={cn("flex items-center justify-center", isRewriteEnable ? 'hidden': "")}>{selectedCashType}</p>
               <MyCombobox
-                            className={cn("w-full bg-black/60 hover:bg-black/80 border-slate-800 text-white", isRewriteEnable ? "" : "hidden")}
+                            className={cn("w-full z-40 bg-black/60 hover:bg-black/80 border-slate-800 text-white", isRewriteEnable ? "" : "hidden")}
                             placeholder="Loại Thẻ"
                             searchPlaceholder="Tìm loại thẻ"
                             emptyMessage="Loại Thẻ"

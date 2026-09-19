@@ -78,6 +78,7 @@ export const useUpdateTrans = (setIsOpenForm,item,handleUpdateTransaction) => {
     spendingDesc,
     selectedType,
     selectedTag,
+    selectedCashType,
     setSelectedType,
     setSelectedCashType,
     setSpendingName,
