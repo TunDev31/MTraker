@@ -21,7 +21,9 @@ export const useWalletTransactions = (userWallet,setUserWallet, selectedWallet,t
             alert("Số dư không đủ để thực hiện giao dịch này.");
             return;
           }
+        
           updateUserWallet(setUserWallet, selectedWallet, currUserWallet.userWalletOrg - userAmount);
+
         } else if (userChoice === "insert") {
           updateUserWallet(setUserWallet, selectedWallet, currUserWallet.userWalletOrg + userAmount);
         }

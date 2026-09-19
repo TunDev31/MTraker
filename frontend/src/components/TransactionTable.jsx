@@ -1,5 +1,10 @@
 import { ChevronFirst, ChevronLast } from "lucide-react";
 import TransactionItem from "./TransactionItem";
+import { TablePagination } from "./TablePagination";
+import { usePagination } from "@/hooks/usePagination";
+import { useState } from "react";
+import TransactionsDetails from "./TransactionsDetails";
+import { cn } from "@/lib/utils";
 
 function TransactionTable({
   transactions,
@@ -11,6 +16,9 @@ function TransactionTable({
   
 }) {
   // 1. Logic tính toán mốc thời gian dựa trên offSet
+
+  const [itemSelected, setSelectedItem] = useState(undefined);
+  const {   visibleTaskNums, pageNums ,handlePrevPage,handleNextPage,handleChangePage} = usePagination(transactions,4 );
   const getDateLabel = () => {
     if (offSet === 0) {
       if (selectedDateFilter === "day") return "Hôm nay";
@@ -47,8 +55,9 @@ function TransactionTable({
   };
 
   return (
+    
     // Cuộn nằm ở div bao ngoài này (max-h-125 tương đương 500px)
-    <div className="w-full max-h-125 overflow-auto border border-black rounded-md bg-(--bg-primary)">
+    <div className="w-full flex flex-col flex-1 h-full mt-3 mb-18 overflow-auto border border-black rounded-md bg-(--bg-primary) justify-between">
       <table className="w-full border-collapse text-left">
         {/* Header cố định trên cùng khi cuộn */}
         <thead className="sticky top-0 bg-(--bg-primary) border-b z-10">
@@ -83,12 +92,13 @@ function TransactionTable({
             </th>
           </tr>
         </thead>
-
         {/* Body render danh sách Item */}
-        <tbody className="divide-y divide-gray-200">
-          {transactions.length > 0 ? (
-            transactions.map((trans) => (
+        <tbody className={cn("divide-y divide-gray-200",itemSelected ? 'hidden' : '')}>
+          {visibleTaskNums?.transShow?.length > 0 ? (
+            visibleTaskNums?.transShow?.map((trans) =>  (
               <TransactionItem
+              itemSelected = {itemSelected}
+                setSelectedItem={setSelectedItem}
                 key={trans._id}
                 item={trans}
                 deleteTransaction={deleteTransaction}
@@ -104,6 +114,14 @@ function TransactionTable({
           )}
         </tbody>
       </table>
+        <TablePagination 
+        pageNums={pageNums}
+        handlePrevPage={handlePrevPage}
+        totalPage = {visibleTaskNums.totalPage}
+        handleNextPage={handleNextPage}
+        handleChangePage={handleChangePage}
+        
+        />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import Header from "./components/Header";
 import DateFilter from "./components/DateFilter";
 import TotalBalance from "./components/TotalBalance";
 import FilterBar from "./components/FilterBar";
-import TransactionTable from "./components/ui/TransactionTable";
+import TransactionTable from "./components/TransactionTable";
 import Footer from "./components/Footer";
 import { useEffect, useState } from "react";
 import NavBar from "./components/NavBar";
@@ -62,7 +62,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col gap-1 px-1 py-1 sm:py-3 sm:px-3 sm:gap-2 bg-(--bg-primary)">
+    <div className="h-dvh overflow-hidden flex flex-col gap-1 px-1 py-1 sm:py-3 sm:px-3 sm:gap-2 bg-(--bg-primary)">
       <Toaster
         position="top-center"
         richColors
@@ -91,7 +91,7 @@ function App() {
           selectedDateFilter={selectedDateFilter}
           setSelectedDateFilter={setSelectedDateFilter}
         />
-        <FilterBar />
+        {/* <FilterBar /> */}
         <TransactionTable
           transactions={TransFilter.filteredTransByDate}
           deleteTransaction={handleDeleteTransaction}

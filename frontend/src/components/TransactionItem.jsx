@@ -8,9 +8,11 @@ import {
   Utensils,
   Van,
   Apple,
+  EllipsisVertical,
 } from "lucide-react";
 import { useState } from "react";
-function TransactionItem({ item, deleteTransaction }) {
+function TransactionItem({ item, deleteTransaction,itemSelected ,
+                setSelectedItem }) {
   const [isOpenTransDetails, setOpenTransDetail] = useState(false);
   const ICON_MAP = {
     food: Utensils,
@@ -25,19 +27,25 @@ function TransactionItem({ item, deleteTransaction }) {
   const minute = itemDate.getMinutes();
   const formattedHour = String(hour).padStart(2, "0");
   const formattedMinute = String(minute).padStart(2, "0");
-  const hourString = formattedHour+":"+formattedMinute;
-  
+  const hourString = formattedHour + ":" + formattedMinute;
+
   return (
     <tr
-      onDoubleClick={()=>setOpenTransDetail(true)}
-    className="flex border-b  hover:bg-gray-200 hover:border hover:border-(--Green-color) transition-colors">
+      onDoubleClick={() => setSelectedItem(item)}
+      className="flex border-b  hover:bg-gray-200 hover:border hover:border-(--Green-color) transition-colors"
+    >
       {/* Cột 1: Transaction info */}
-      <td className={`flex items-center py-1 px-2 gap-2 ${isOpenTransDetails ? 'hidden' : ''}`}>
+      <td
+        className={`flex items-center py-1 px-2 gap-2 ${isOpenTransDetails ? "hidden" : ""}`}
+      >
         <div className="bg-red-400 rounded-full">
           <IconComponent className="m-2 text-black rounded-full" />
         </div>
       </td>
-      <td className={`flex items-center w-full py-1 px-2 gap-2 ${isOpenTransDetails ? 'hidden' : ''}` }>
+
+      <td
+        className={`flex items-center w-full py-1 px-2 gap-2 ${isOpenTransDetails ? "hidden" : ""}`}
+      >
         <div className="flex flex-col w-full">
           <div className="flex justify-between w-full items-center">
             <span className="font-bold text-xl">{item.title}</span>
@@ -51,32 +59,40 @@ function TransactionItem({ item, deleteTransaction }) {
               {item.amount} <span className="text-xl text-shadow-black">đ</span>
             </span>
           </div>
+          <div className="flex justify-between">
+            <div className="flex gap-1">
+              {item.tag?.map((tag, index) => {
+                return (
+                  <div key={index} className="flex justify-between">
+                    <div className="bg-blue-200 text-black rounded-xl m-0.5">
+                      #{tag}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {hourString}
+            
+          </div>
           
-            {item.tag?.map((tag,index) => {
-              return (
-                <div key={index} className="flex justify-between">
-                <div  className="bg-blue-200 text-black rounded-xl m-0.5">
-                  #{tag}
-                </div>
-                <div>
-                  {hourString}
-                </div>
-                 </div>
-              );
-            })}
-           
-         
         </div>
+       
       </td>
-      <td colSpan={2} className={`min-h-16 ${isOpenTransDetails ? '':'hidden'}`}>
-        <div className="flex p-3 h-full w-full">
-          <button 
-          className="text-red-500 rounded-full p-1 border border-red-500"
-          onClick={()=> {
-            deleteTransaction(item._id);
-            setOpenTransDetail(false);
-
-          }}>X</button>
+      <td
+        colSpan={2}
+        className={`min-h-16 ${isOpenTransDetails ? "" : "hidden"}`}
+      >
+        <div className="flex h-full w-full">
+          <button
+            className="text-red-500 rounded-full p-1 border border-red-500"
+            onClick={() => {
+              deleteTransaction(item._id);
+              setOpenTransDetail(false);
+            }}
+          >
+            X
+          </button>
+          <span>Xoá</span>
         </div>
       </td>
     </tr>

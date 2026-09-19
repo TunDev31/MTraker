@@ -1,5 +1,6 @@
 
 import { useFormHandling } from "@/hooks/useFormHandling";
+import { TablePagination } from "./TablePagination";
 const TransactionForm = ({setTransactions, setIsOpenForm }) => {
 
   /*Custom Hook */
@@ -257,6 +258,7 @@ const TransactionForm = ({setTransactions, setIsOpenForm }) => {
           </button>
         </form>
       </div>
+    
     </div>
   );
 };
