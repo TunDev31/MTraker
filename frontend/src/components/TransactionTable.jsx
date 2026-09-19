@@ -57,7 +57,7 @@ function TransactionTable({
 
   return itemSelected ? (
     /* Khung bọc khi xem Chi tiết - giữ nguyên style giống với Bảng */
-    <div className=" fixed inset-0 z-10 w-full h-full bg-black/60 backdrop-blur-xs px-4 py-10 flex items-center justify-center">
+    <div className=" fixed inset-0 z-10 w-full h-full bg-black/60 backdrop-blur-xs px-4 pt-10 pb-18 flex items-center justify-center">
       <TransactionsDetails 
       handleUpdateTransaction={handleUpdateTransaction}
         item={itemSelected} 
