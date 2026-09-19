@@ -11,7 +11,7 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 import { useState } from "react";
-function TransactionItem({ item, deleteTransaction,itemSelected ,
+function TransactionItem({ item,
                 setSelectedItem }) {
   const [isOpenTransDetails, setOpenTransDetail] = useState(false);
   const ICON_MAP = {
@@ -38,8 +38,8 @@ function TransactionItem({ item, deleteTransaction,itemSelected ,
       <td
         className={`flex items-center py-1 px-2 gap-2 ${isOpenTransDetails ? "hidden" : ""}`}
       >
-        <div className="bg-red-400 rounded-full">
-          <IconComponent className="m-2 text-black rounded-full" />
+        <div className="bg-red-100 rounded-full">
+          <IconComponent className="m-2 text-red-500 rounded-full" />
         </div>
       </td>
 
@@ -61,15 +61,16 @@ function TransactionItem({ item, deleteTransaction,itemSelected ,
           </div>
           <div className="flex justify-between">
             <div className="flex gap-1">
-              {item.tag?.map((tag, index) => {
-                return (
+              {item.tag?.map((tag, index) => 
+              
+                 (
                   <div key={index} className="flex justify-between">
-                    <div className="bg-blue-200 text-black rounded-xl m-0.5">
+                    <div className="bg-blue-200 text-black rounded-xl px-1.5">
                       #{tag}
                     </div>
                   </div>
-                );
-              })}
+                )
+              )}
             </div>
             {hourString}
             
@@ -77,23 +78,6 @@ function TransactionItem({ item, deleteTransaction,itemSelected ,
           
         </div>
        
-      </td>
-      <td
-        colSpan={2}
-        className={`min-h-16 ${isOpenTransDetails ? "" : "hidden"}`}
-      >
-        <div className="flex h-full w-full">
-          <button
-            className="text-red-500 rounded-full p-1 border border-red-500"
-            onClick={() => {
-              deleteTransaction(item._id);
-              setOpenTransDetail(false);
-            }}
-          >
-            X
-          </button>
-          <span>Xoá</span>
-        </div>
       </td>
     </tr>
   );

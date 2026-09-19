@@ -9,7 +9,7 @@ const DateFilter = ({ selectedDateFilter, setSelectedDateFilter }) => {
         
         setSelectedDateFilter(value);
     };
-    const formattedDate = today.toLocaleDateString('en-US', {
+    const formattedDate = today.toLocaleDateString('vi-VN', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'

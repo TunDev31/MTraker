@@ -13,6 +13,7 @@ function TransactionTable({
   offSet,
   selectedDateFilter,
   setSelectedDateFilter,
+  handleUpdateTransaction
   
 }) {
   // 1. Logic tính toán mốc thời gian dựa trên offSet
@@ -54,18 +55,25 @@ function TransactionTable({
     }
   };
 
-  return (
-    
-    // Cuộn nằm ở div bao ngoài này (max-h-125 tương đương 500px)
+  return itemSelected ? (
+    /* Khung bọc khi xem Chi tiết - giữ nguyên style giống với Bảng */
+    <div className=" fixed inset-0 z-10 w-full h-full bg-black/60 backdrop-blur-xs px-4 py-10 flex items-center justify-center">
+      <TransactionsDetails 
+      handleUpdateTransaction={handleUpdateTransaction}
+        item={itemSelected} 
+        onClose={() => setSelectedItem(undefined)} 
+        deleteTransaction={deleteTransaction}
+      />
+    </div>
+  ) : (
+    /* Bảng danh sách khi chưa chọn item */
     <div className="w-full flex flex-col flex-1 h-full mt-3 mb-18 overflow-auto border border-black rounded-md bg-(--bg-primary) justify-between">
       <table className="w-full border-collapse text-left">
-        {/* Header cố định trên cùng khi cuộn */}
         <thead className="sticky top-0 bg-(--bg-primary) border-b z-10">
           <tr className="text-xs font-bold text-(--credit-bg-color) uppercase">
             <th className="py-2 px-3 flex items-center justify-between">
               <span>CHI TIÊU: {getDateLabel()}</span>
 
-              {/* Cụm nút chuyển đổi mốc thời gian */}
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -92,17 +100,14 @@ function TransactionTable({
             </th>
           </tr>
         </thead>
-        {/* Body render danh sách Item */}
-        <tbody className={cn("divide-y divide-gray-200",itemSelected ? 'hidden' : '')}>
+
+        <tbody className="divide-y divide-gray-200">
           {visibleTaskNums?.transShow?.length > 0 ? (
-            visibleTaskNums?.transShow?.map((trans) =>  (
+            visibleTaskNums?.transShow?.map((trans) => (
               <TransactionItem
-              itemSelected = {itemSelected}
-                setSelectedItem={setSelectedItem}
                 key={trans._id}
                 item={trans}
-                deleteTransaction={deleteTransaction}
-                
+                setSelectedItem={setSelectedItem}
               />
             ))
           ) : (
@@ -114,14 +119,14 @@ function TransactionTable({
           )}
         </tbody>
       </table>
-        <TablePagination 
+
+      <TablePagination
         pageNums={pageNums}
         handlePrevPage={handlePrevPage}
-        totalPage = {visibleTaskNums.totalPage}
+        totalPage={visibleTaskNums.totalPage}
         handleNextPage={handleNextPage}
         handleChangePage={handleChangePage}
-        
-        />
+      />
     </div>
   );
 }

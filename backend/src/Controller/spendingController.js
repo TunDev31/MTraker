@@ -42,6 +42,17 @@ export const createSpending = async (req, res) => {
 export const updateSpending = async (req, res) => {
   try {
     const { id } = req.params;
+    const {title, amount,  tag} = req.body;
+     const errors = [];
+    if (!title || title.trim()==='')  errors.push("Ten giao dich khong duoc trong!");
+    if (typeof amount !== "number" || amount <= 0)
+      errors.push("Amount phải là số dương");
+    if (tag !== undefined && !Array.isArray(tag))
+      errors.push("Tag phải là mảng");
+
+    if (errors.length > 0) {
+      return res.status(400).json({ message: errors.join(", ") });
+    }
     const updated = await Spending.findByIdAndUpdate(id, req.body, {
       new: true,
     });

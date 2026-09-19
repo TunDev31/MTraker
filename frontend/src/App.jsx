@@ -25,7 +25,7 @@ function App() {
   useEffect(() => {
     fetchTransactions();
   }, []);
-  const {  TransFilter } = useTransactions({
+  const {  TransFilter,expenseStats } = useTransactions({
     selectedWallet,
     transactions,
     selectedDateFilter,
@@ -41,7 +41,11 @@ function App() {
       console.error("Error fetching transactions:", error);
     }
   };
-
+const handleUpdateTransaction = (updatedData) => {
+  setTransactions((prev) =>
+    prev.map((item) => (item._id === updatedData._id ? updatedData : item))
+  );
+};
   const handleDeleteTransaction = async (transactionId) => {
     try {
       const response = await deleteSpendings(transactionId);
@@ -90,9 +94,11 @@ function App() {
           setSelectedWallet={setSelectedWallet}
           selectedDateFilter={selectedDateFilter}
           setSelectedDateFilter={setSelectedDateFilter}
+          expenseStats = {expenseStats}
         />
         {/* <FilterBar /> */}
         <TransactionTable
+        handleUpdateTransaction={handleUpdateTransaction}
           transactions={TransFilter.filteredTransByDate}
           deleteTransaction={handleDeleteTransaction}
           setOffSet={setOffSet}

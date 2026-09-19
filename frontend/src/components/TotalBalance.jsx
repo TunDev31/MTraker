@@ -17,16 +17,13 @@ const TotalBalance = ({
   setSelectedWallet,
   transactions,
   selectedDateFilter,
+  expenseStats
 }) => {
   const [selectedValue, setSelectedValue] = React.useState("cash");
 
   const [isUserWalletVisible, setUserWalletVisible] = useState(true);
 
-  const { expenseStats } = useTransactions({
-    transactions,
-    selectedWallet,
-    selectedDateFilter,
-  });
+  
   const {
     currUserWallet,
     setUserChoice,
@@ -126,7 +123,7 @@ const TotalBalance = ({
           </div>
           <div className="flex gap-2 items-center">
             <MyCombobox
-              className="bg-black/60 hover:bg-black/80 border-slate-800 text-white"
+            
               placeholder="Loại Thẻ"
               searchPlaceholder="Tìm loại thẻ"
               emptyMessage="Loại Thẻ"

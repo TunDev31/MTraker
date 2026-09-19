@@ -23,13 +23,13 @@ export default function MyCombobox({
   emptyMessage = "Không tìm thấy.",
   value, 
   onChange ,
-  className = ""
 }) {
   const [open, setOpen] = React.useState(false)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
+      className="hover:border hover:border-black"
   render={
     <Button
       variant="outline"
@@ -37,10 +37,10 @@ export default function MyCombobox({
       aria-expanded={open}
       className={cn(
             // Các class mặc định của Combobox
-            "w-fit justify-between rounded-xl px-3 py-2 text-sm font-medium",
+            "w-fit justify-between rounded-xl px-3 py-2 text-sm font-medium z-999"
            
             
-            className // 2. Đặt className truyền vào ở CỐI để ghi đè class mặc định
+             // 2. Đặt className truyền vào ở CỐI để ghi đè class mặc định
           )}
     >
       {value
@@ -50,7 +50,7 @@ export default function MyCombobox({
     </Button>
   }
 />
-      <PopoverContent className="w-fit p-0 rounded-xl">
+      <PopoverContent className="w-fit p-0 rounded-xl z-50">
         <Command>
           <CommandInput className="focus:ring-emerald-500 inline-block" placeholder={searchPlaceholder} />
           <CommandList>
