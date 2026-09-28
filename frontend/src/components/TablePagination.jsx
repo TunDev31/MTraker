@@ -19,7 +19,7 @@ export function TablePagination({  pageNums,handlePrevPage,handleNextPage,handle
     } else {
       if (pageNums <=2) {
         arrPage.push(1,2,3,"...",totalPage);
-      } else if (pageNums <= totalPage -1) {
+      } else if (pageNums >= totalPage -2) {
         arrPage.push(1,"...",totalPage-1,totalPage);
       } else 
       {

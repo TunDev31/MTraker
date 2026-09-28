@@ -30,7 +30,7 @@ export default function MyCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-      className="hover:border hover:border-black"
+      className="hover:border hover:border-secondary"
   render={
     <Button
       variant="outline"

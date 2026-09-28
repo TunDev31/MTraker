@@ -3,11 +3,8 @@ import React, { useState } from "react";
 import MyCombobox from "./ui/MyCombobox";
 import { cn } from "@/lib/utils";
 import { getDateFilter } from "@/utils/DateUtils/DateFilterUtils";
-
 import { useWalletTransactions } from "@/hooks/useWalletTransaction";
-
-import { useTransactions } from "@/hooks/useTransactions";
-
+import ExpenseAnalyze from "./ExpenseAnalyze";
 const TotalBalance = ({
   setUserWallet,
   userWallet,
@@ -15,15 +12,13 @@ const TotalBalance = ({
   setIsInsertMode,
   selectedWallet,
   setSelectedWallet,
-  transactions,
   selectedDateFilter,
-  expenseStats
+  expenseStats,
 }) => {
   const [selectedValue, setSelectedValue] = React.useState("cash");
 
   const [isUserWalletVisible, setUserWalletVisible] = useState(true);
 
-  
   const {
     userChoice,
     currUserWallet,
@@ -35,7 +30,7 @@ const TotalBalance = ({
     setUserWallet,
     selectedWallet,
     expenseStats.totalExpenseAllTime,
-    expenseStats.totalIncomeAllTime
+    expenseStats.totalIncomeAllTime,
   );
 
   const handleChange = (value) => {
@@ -45,74 +40,10 @@ const TotalBalance = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col px-2 py-3 gap-1.5 bg-white rounded-xl  shadow-md">
-          <div className="flex justify-between items-center gap-1">
-            <h2 className="text-xs font-light">
-              TỔNG CHI {getDateFilter(selectedDateFilter).toUpperCase()}{" "}
-            </h2>
-          </div>
-          <div className="flex gap-1">
-            <p className="text-lg font-bold">
-              {expenseStats.currentExpenseValueByDate.toLocaleString("vi-VN")}{" "}
-              <span>VND</span>{" "}
-            </p>
-          </div>
-          <div className="flex gap-1 items-center">
-            <div
-              className={cn(
-                "rounded-2xl",
-                expenseStats.expensePercentage < 0
-                  ? "bg-green-100"
-                  : "bg-red-100",
-              )}
-            >
-              <p
-                className={cn(
-                  "mx-5",
-                  expenseStats.expensePercentage < 0
-                    ? "text-green-900"
-                    : "text-red-900",
-                )}
-              >
-                {expenseStats.expensePercentage !== 0
-                  ? `${expenseStats.isIncrease ? "+" : ""}${expenseStats.expensePercentage.toFixed(1)}%`
-                  : `Chưa có dữ liệu`}
-              </p>
-            </div>
-            <p className="flex justify-center items-center gap-2 text-xs text-black">
-              {expenseStats.expensePercentage !== 0
-                ? `${getDateFilter(selectedDateFilter)} trước`
-                : ``}
-            </p>
-          </div>
-        </div>
+      {/* 1.Thong ke chi tieu */}
+      <ExpenseAnalyze selectedDateFilter={selectedDateFilter} expenseStats={expenseStats}/>
 
-        <div className="flex flex-col p-2 gap-2 bg-white rounded-xl  shadow-md">
-          <div className="flex items-center justify-center gap-1">
-            <h2 className="items-center justify-center text-xs font-light">
-              DANH MỤC CHI NHIỀU
-            </h2>
-          </div>
-          <div className="flex gap-2 items-center justify-center">
-            <expenseStats.IconTypeComponent className="border border-black rounded-full p-1" />
-            <p className="text-lg font-bold text-(--Green-color)">
-              {expenseStats.mostExpensiveType}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm flex gap-2">
-              <span className="text-(--Green-color) justify-center items-center ">
-                {expenseStats.mostExpensePerDay.toFixed(0)} %
-              </span>{" "}
-              <span>
-                /Tổng chi tiêu {getDateFilter(selectedDateFilter).toLowerCase()}
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
-
+      
       <div className="bg-linear-to-br from-[#1c232b]/90 to-[#12171d]/90 backdrop-blur-md border border-white/10 shadow-xl rounded-xl px-2 py-2 gap-2">
         <div className="flex gap-2 justify-between">
           <div className="flex gap-2">
@@ -124,7 +55,6 @@ const TotalBalance = ({
           </div>
           <div className="flex gap-2 items-center">
             <MyCombobox
-            
               placeholder="Loại Thẻ"
               searchPlaceholder="Tìm loại thẻ"
               emptyMessage="Loại Thẻ"
@@ -194,7 +124,7 @@ const TotalBalance = ({
                   <input
                     type="radio"
                     id="exNout"
-                    name="exNin"
+                    name="exNout"
                     checked={userChoice === "insert"}
                     onChange={(e) => setUserChoice(e.target.value)}
                     value="expense"
@@ -223,7 +153,7 @@ const TotalBalance = ({
               className="text-(--Green-color) underline hover:cursor-pointer"
               onClick={() => setIsInsertMode(!isInsertMode)}
             >
-              Nạp/Rút tiền
+              Nạp/ Rút tiền
             </p>
           )}
           {isInsertMode && (

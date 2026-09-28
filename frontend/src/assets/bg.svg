@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <!-- Dark Emerald Green Gradient Background -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06221A" />
+      <stop offset="50%" stop-color="#0B3C2D" />
+      <stop offset="100%" stop-color="#02140E" />
+    </linearGradient>
+
+    <!-- Glowing Green Radial Effect -->
+    <radialGradient id="glowGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Gold Coin Metallic Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE259" />
+      <stop offset="50%" stop-color="#FFA751" />
+      <stop offset="100%" stop-color="#E58C05" />
+    </linearGradient>
+
+    <!-- Gold Coin Rim Highlight -->
+    <linearGradient id="goldRim" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF8DB" />
+      <stop offset="100%" stop-color="#B86E00" />
+    </linearGradient>
+
+    <!-- Financial Chart Wave Gradient -->
+    <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#059669" stop-opacity="0.0" />
+    </linearGradient>
+
+    <!-- Glow Filter for Gold Coins & Chart -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- 1. MAIN BACKGROUND -->
+  <rect width="1920" height="1080" fill="url(#bgGrad)" />
+
+  <!-- 2. AMBIENT GLOW -->
+  <circle cx="960" cy="450" r="700" fill="url(#glowGrad)" />
+
+  <!-- 3. DECORATIVE GRID LINES (Tech/Tracker Vibe) -->
+  <g stroke="#10B981" stroke-opacity="0.07" stroke-width="1">
+    <path d="M 0,180 L 1920,180 M 0,360 L 1920,360 M 0,540 L 1920,540 M 0,720 L 1920,720 M 0,900 L 1920,900" />
+    <path d="M 320,0 L 320,1080 M 640,0 L 640,1080 M 960,0 L 960,1080 M 1280,0 L 1280,1080 M 1600,0 L 1600,1080" />
+  </g>
+
+  <!-- 4. UPWARD FINANCIAL CHART (TRACKER SYMBOL) -->
+  <g filter="url(#softGlow)">
+    <!-- Filled Chart Area -->
+    <path d="M 0,850 Q 480,750 960,500 T 1920,200 L 1920,1080 L 0,1080 Z" fill="url(#chartGrad)" />
+    <!-- Bright Trend Line -->
+    <path d="M 0,850 Q 480,750 960,500 T 1920,200" fill="none" stroke="#34D399" stroke-width="4" stroke-linecap="round" />
+  </g>
+
+  <!-- 5. FLOATING GOLD COINS (3D EFFECT & DYNAMICS) -->
+
+  <!-- Large Central Gold Coin (Top Right) -->
+  <g transform="translate(1450, 280) rotate(-15)" filter="url(#softGlow)">
+    <ellipse cx="0" cy="0" rx="90" ry="90" fill="url(#goldRim)" />
+    <ellipse cx="0" cy="0" rx="80" ry="80" fill="url(#goldGrad)" />
+    <ellipse cx="0" cy="0" rx="65" ry="65" fill="none" stroke="#FFF8DB" stroke-width="3" stroke-dasharray="8,6" opacity="0.6" />
+    <text x="0" y="28" font-family="Arial, sans-serif" font-weight="900" font-size="80" fill="#7A4300" text-anchor="middle">$</text>
+  </g>
+
+  <!-- Medium Gold Coin (Bottom Left) -->
+  <g transform="translate(380, 720) rotate(20)" filter="url(#softGlow)">
+    <ellipse cx="0" cy="0" rx="65" ry="65" fill="url(#goldRim)" />
+    <ellipse cx="0" cy="0" rx="58" ry="58" fill="url(#goldGrad)" />
+    <ellipse cx="0" cy="0" rx="46" ry="46" fill="none" stroke="#FFF8DB" stroke-width="2" />
+    <text x="0" y="20" font-family="Arial, sans-serif" font-weight="900" font-size="58" fill="#7A4300" text-anchor="middle">$</text>
+  </g>
+
+  <!-- Small Blurred Background Coin (Top Left) -->
+  <g transform="translate(220, 250) rotate(-30)" opacity="0.4" filter="url(#softGlow)">
+    <circle cx="0" cy="0" r="40" fill="url(#goldGrad)" />
+    <text x="0" y="14" font-family="Arial, sans-serif" font-weight="900" font-size="40" fill="#7A4300" text-anchor="middle">$</text>
+  </g>
+
+  <!-- Small Blurred Background Coin (Center Right) -->
+  <g transform="translate(1700, 680) rotate(10)" opacity="0.5" filter="url(#softGlow)">
+    <circle cx="0" cy="0" r="50" fill="url(#goldGrad)" />
+    <text x="0" y="17" font-family="Arial, sans-serif" font-weight="900" font-size="48" fill="#7A4300" text-anchor="middle">$</text>
+  </g>
+
+  <!-- 6. SPARKLES & LIGHT PARTICLES -->
+  <g fill="#FFE259" opacity="0.8">
+    <!-- Star Sparkle 1 -->
+    <path d="M 1320,200 Q 1320,220 1340,220 Q 1320,220 1320,240 Q 1320,220 1300,220 Q 1320,220 1320,200 Z" />
+    <!-- Star Sparkle 2 -->
+    <path d="M 480,620 Q 480,635 495,635 Q 480,635 480,650 Q 480,635 465,635 Q 480,635 480,620 Z" />
+    <!-- Floating Gold Particles -->
+    <circle cx="850" cy="380" r="4" fill="#34D399" />
+    <circle cx="1100" cy="280" r="3" fill="#FFE259" />
+    <circle cx="1550" cy="450" r="5" fill="#FFE259" />
+    <circle cx="300" cy="800" r="4" fill="#34D399" />
+    <circle cx="1200" cy="650" r="3" fill="#34D399" />
+  </g>
+</svg>

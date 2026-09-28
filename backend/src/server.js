@@ -1,12 +1,15 @@
 import express from "express";
 import dotenv from "dotenv";
 import spendingRoutes from "./Routes/spendingRoutes.js";
+import authRoutes from "./Routes/authRoutes.js";
 import dns from "dns";
 import { connectDB } from "./Lib/db.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import cookieParser from 'cookie-parser'
+import { protectedRoute } from "./middlewares/authMiddleware.js";
+import userRoutes from './Routes/userRoutes.js'
 dns.setServers(["8.8.8.8"]);
 dotenv.config();
 
@@ -34,7 +37,10 @@ app.use(
   }),
 );
 app.use(express.json());
-
+app.use(cookieParser());
+app.use("/api/auth",authRoutes);
+app.use(protectedRoute);
+app.use("/api/users",userRoutes);
 app.use("/api/spending", spendingRoutes);
 
 // Phục vụ frontend tĩnh khi ở môi trường production

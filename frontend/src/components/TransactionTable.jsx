@@ -4,7 +4,7 @@ import { TablePagination } from "./TablePagination";
 import { usePagination } from "@/hooks/usePagination";
 import { useState } from "react";
 import TransactionsDetails from "./TransactionsDetails";
-import { cn } from "@/lib/utils";
+
 
 function TransactionTable({
   transactions,
@@ -12,7 +12,6 @@ function TransactionTable({
   setOffSet,
   offSet,
   selectedDateFilter,
-  setSelectedDateFilter,
   handleUpdateTransaction
   
 }) {
@@ -71,7 +70,7 @@ function TransactionTable({
       <table className="w-full border-collapse text-left">
         <thead className="sticky top-0 bg-(--bg-primary) border-b z-10">
           <tr className="text-xs font-bold text-(--credit-bg-color) uppercase">
-            <th className="py-2 px-3 flex items-center justify-between">
+            <th className="py-2 px-3 flex items-center justify-between border border-b-black">
               <span>CHI TIÊU: {getDateLabel()}</span>
 
               <div className="flex items-center gap-1">

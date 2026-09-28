@@ -1,66 +1,92 @@
-import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
-import api from "@/lib/axios";
 import { createSpendings } from "@/services/SpendingServices";
+
 export const useFormHandling = (setTransactions, setIsOpenForm) => {
   const [selectedType, setSelectedType] = useState("expense");
   const [selectedCashType, setSelectedCashType] = useState("cash");
   const [spendingName, setSpendingName] = useState("");
-  const [spendingAmount, setSpendingAmount] = useState(0);
+  const [spendingAmount, setSpendingAmount] = useState("");
   const [spendingDesc, setSpendingDesc] = useState("");
   const [selectedTag, setSelectedTag] = useState([]);
+
   const handleTagSelect = (e) => {
     const value = e.target.value;
     setSelectedTag((prev) =>
-      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value],
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
     );
   };
+
+  const resetForm = () => {
+    setSpendingName("");
+    setSpendingAmount("");
+    setSpendingDesc("");
+    setSelectedTag([]);
+    setSelectedType("expense");
+    setSelectedCashType("cash");
+  };
+
   const handleSubmit = async (e) => {
-    // 1. Chống reload trang trên di động nếu nút nằm trong <form>
     if (e && e.preventDefault) e.preventDefault();
 
-    const API_URL =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
-
     try {
-      // 2. Dùng API_URL và thêm Template String
+      // 1. Validate Tên
       if (!spendingName || spendingName.trim() === "") {
-        toast("Ten khong duoc de trong!");
+        toast.error("Tên giao dịch không được để trống!");
         return;
       }
+
+      // 2. Validate & Ép kiểu Số tiền
+      const numericAmount = Number(spendingAmount);
+      if (isNaN(numericAmount) || numericAmount <= 0) {
+        toast.error("Số tiền phải lớn hơn 0!");
+        return;
+      }
+
+      // 3. Validate Tags
       if (selectedTag !== undefined && !Array.isArray(selectedTag)) {
-        toast("Tags khong hop le!");
+        toast.error("Tags không hợp lệ!");
         return;
       }
-      if (spendingAmount < 0) {
-        toast("So tien khong hop le!");
-        return;
-      }
+
       const spendingData = {
-        title: spendingName,
+        title: spendingName.trim(),
         description: spendingDesc,
-        amount: spendingAmount,
+        amount: numericAmount, // Gửi kiểu Number đã ép
         type: selectedType,
         walletType: selectedCashType,
         tag: selectedTag,
-      }
+      };
+
       const res = await createSpendings(spendingData);
 
-      setTransactions((prevTransactions) => [...prevTransactions, res.data]);
-      setIsOpenForm(false); // Đóng modal sau khi tạo thành công
-      toast.success("Luu giao dich thanh cong!");
+      // Cập nhật State danh sách giao dịch ở UI (Mới nhất lên đầu)
+      const createdItem = res.data?.data || res.data;
+      setTransactions((prevTransactions) => [createdItem, ...prevTransactions]);
+
+      toast.success("Lưu giao dịch thành công!");
+      resetForm();
+      setIsOpenForm(false);
     } catch (error) {
-      console.error("Loi khi post", error);
+      console.error("Lỗi khi post chi tiêu:", error);
+      const errorMsg = error.response?.data?.message || "Lưu giao dịch thất bại!";
+      toast.error(errorMsg);
     }
   };
+
   return {
+    selectedType,
     setSelectedType,
+    selectedCashType,
     setSelectedCashType,
+    spendingName,
     setSpendingName,
+    spendingAmount,
     setSpendingAmount,
-    handleSubmit,
+    spendingDesc,
     setSpendingDesc,
+    selectedTag,
     handleTagSelect,
+    handleSubmit,
   };
 };

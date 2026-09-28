@@ -7,7 +7,7 @@ import {
   getToltalIncome,
   getTotalExpense,
 } from "@/utils/SpendingUtils/CalculateUtils";
-import { ICON_MAP } from "@/utils/SpendingUtils/SpendingIcon";
+import { ICON_MAP } from "@/utils/SpendingUtils/TransactionsIconUtils";
 import { Ban } from "lucide-react";
 import { useMemo } from "react";
 
@@ -40,7 +40,7 @@ export const useTransactions = ({
     };
   }, [transactions, offset, selectedDateFilter]);
 
-  const expenseStats = useMemo(() => {
+  const transactionCalculation = useMemo(() => {
     const totalExpenseAllTime = getTotalExpense(transactions, selectedWallet);
     const totalIncomeAllTime =  getToltalIncome(transactions,selectedWallet);
     const prevExpenseValueByDate = getPrevTotalExpense(
@@ -78,7 +78,7 @@ export const useTransactions = ({
   }, [transactions, selectedWallet, TransFilter]);
 
   return {
-    expenseStats,
+    transactionCalculation,
     TransFilter,
   };
 };

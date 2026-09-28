@@ -277,7 +277,7 @@ const TransactionsDetails = ({
               <Tag size={13} /> Danh mục
             </label>
             {!isRewriteEnable ? (
-              <div className="flex flex-wrap gap-1.5 bg-gray-50 p-2 rounded-xl border border-gray-100 min-h-[42px] items-center">
+              <div className="flex flex-wrap gap-1.5 bg-gray-50 p-2 rounded-xl border border-gray-100 min-h-10.5 items-center">
                 {selectedTag?.length > 0 ? (
                   selectedTag.map((tag, idx) => {
                     const cfg = TAG_CONFIG[tag?.toLowerCase()];
@@ -330,7 +330,7 @@ const TransactionsDetails = ({
               <Wallet size={13} /> Phương thức
             </label>
             {!isRewriteEnable ? (
-              <div className="flex items-center gap-1.5 bg-gray-50 px-3.5 py-2.5 rounded-xl border border-gray-100 min-h-[42px]">
+              <div className="flex items-center gap-1.5 bg-gray-50 px-3.5 py-2.5 rounded-xl border border-gray-100 min-h-10.5">
                 <span className="text-sm font-semibold text-gray-800">
                   {WALLET_LABELS[selectedCashType] || selectedCashType}
                 </span>
@@ -355,7 +355,7 @@ const TransactionsDetails = ({
             Mô tả chi tiết
           </label>
           {!isRewriteEnable ? (
-            <p className="text-sm text-gray-700 bg-gray-50 px-3.5 py-2 rounded-xl border border-gray-100 min-h-[38px] flex items-center">
+            <p className="text-sm text-gray-700 bg-gray-50 px-3.5 py-2 rounded-xl border border-gray-100 min-h-9.5 flex items-center">
               {spendingDesc ? (
                 spendingDesc
               ) : (
