@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import MyCombobox from "./ui/MyCombobox";
-import { useUpdateTrans } from "@/hooks/useUpdateTrans";
+
 
 const WALLET_OPTIONS = [
   { value: "cash", label: "Tiền mặt" },

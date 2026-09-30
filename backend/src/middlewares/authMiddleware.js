@@ -19,7 +19,7 @@ export const protectedRoute = (req, res, next)=>{
              if (!user) {
                 return res.status(404).json({message:"User khong ton tai!"});
              }
-            req.userId = user._id; 
+            req.user = user; 
             next();
         });
        

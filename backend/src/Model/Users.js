@@ -38,7 +38,8 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
         sparse: true
-    }
+    },
+    
 },{
     timestamps : true
 })

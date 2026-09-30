@@ -2,9 +2,6 @@ import { useEffect, useMemo, useState } from "react"
 
 export const usePagination = (trans,pageNumsLimit) => {
     const [pageNums,setPageNums] = useState(1);
-    useEffect (()=>{
-        if (pageNums> visibleTaskNums.totalPage) setPageNums(1);
-    },[trans]);
     const visibleTaskNums = useMemo(()=>{
         const transShow = trans?.slice((pageNums-1)*pageNumsLimit,(pageNums)*pageNumsLimit );
         const totalPage = Math.ceil(trans.length / pageNumsLimit );
@@ -13,6 +10,10 @@ export const usePagination = (trans,pageNumsLimit) => {
             totalPage
         }
     },[trans,pageNums]);
+    useEffect (()=>{
+        if (pageNums> visibleTaskNums.totalPage) setPageNums(1);
+    },[trans]);
+    
     const handlePrevPage = ()=> {
         if (pageNums > 1) setPageNums((prevNums)=> prevNums-1);
     }

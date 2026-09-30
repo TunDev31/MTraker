@@ -22,7 +22,7 @@ export const signUp = async (req,res)=> {
             userName,
             hashedPassword,
             email,
-            displayedName: `${firstName}+${lastName}`
+            displayedName: `${firstName} ${lastName}`
         })
         return res.sendStatus(200);
     } catch (error) {
@@ -77,3 +77,16 @@ export const signOut = async(req,res)=> {
          return res.status(500).json({message:"Loi he thong!"})
     }
 }
+
+export const refreshToken = async (req, res) => {
+  const token = req.cookies?.refreshToken;
+  if (!token) return res.status(401).json({ message: "Không có refresh token" });
+  const session = await Session.findOne({ refreshToken: token, expiredAt: { $gt: new Date() } });
+  if (!session) return res.status(401).json({ message: "Session hết hạn, vui lòng đăng nhập lại" });
+  const newAccessToken = jwt.sign(
+    { userId: session.userId },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: '30m' }
+  );
+  return res.status(200).json({ accessToken: newAccessToken });
+};

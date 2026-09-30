@@ -1,7 +1,6 @@
-import React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -9,70 +8,70 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
-export default function MyCombobox({ 
-  data , 
-  placeholder = "Chọn...", 
-  searchPlaceholder = "Tìm kiếm...", 
+export default function MyCombobox({
+  data = [],
+  placeholder = "Chọn...",
+  searchPlaceholder = "Tìm kiếm...",
   emptyMessage = "Không tìm thấy.",
-  value, 
-  onChange ,
-  className = ''
+  value,
+  onChange,
+  className = "",
 }) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
+
+  const selectedLabel = data?.find((item) => item.value === value)?.label;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
+      {/* 🟢 KHÔNG dùng asChild và KHÔNG dùng <Button> bên trong */}
       <PopoverTrigger
-      className="hover:border hover:border-secondary"
-  render={
-    <Button
-      variant="outline"
-      role="combobox"
-      aria-expanded={open}
-      className={cn(
-            // Các class mặc định của Combobox
-            "w-fit justify-between rounded-xl px-3 py-2 text-sm font-medium"
-           ,className
-            
-             // 2. Đặt className truyền vào ở CỐI để ghi đè class mặc định
-          )}
-    >
-      {value
-        ? data.find((item) => item.value === value)?.label
-        : placeholder}
-      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-    </Button>
-  }
-/>
-      <PopoverContent className="w-fit p-0 rounded-xl ">
-        <Command>
-          <CommandInput className="focus:ring-emerald-500 inline-block" placeholder={searchPlaceholder} />
+        role="combobox"
+        aria-expanded={open}
+        className={cn(
+          "flex w-fit items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-normal bg-[#2a2b30] border border-gray-700 text-white hover:bg-[#323339] transition-colors cursor-pointer outline-none",
+          !value && "text-gray-500",
+          className
+        )}
+      >
+        <span className="truncate">{selectedLabel || placeholder}</span>
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </PopoverTrigger>
+
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-xl bg-primary border-gray-700 text-white shadow-xl z-50">
+        <Command className="bg-transparent text-white">
+          <CommandInput
+            className="text-white  "
+            placeholder={searchPlaceholder}
+          />
           <CommandList>
-            <CommandEmpty>{emptyMessage}</CommandEmpty>
+            <CommandEmpty className="p-3 text-xs text-gray-400 text-center">
+              {emptyMessage}
+            </CommandEmpty>
             <CommandGroup>
-              {data.map((item) => (
+              {data?.map((item) => (
                 <CommandItem
                   key={item.value}
                   value={item.value}
                   onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue)
-                    setOpen(false)
+                    onChange(currentValue === value ? "" : currentValue);
+                    setOpen(false);
                   }}
+                  className="text-gray-200 hover:bg-[#3a3b42] hover:text-white cursor-pointer py-2 px-3 my-0.5 rounded-lg flex items-center justify-between"
                 >
+                  <span className="truncate">{item.label}</span>
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "h-4 w-4 text-[#ccff00]",
                       value === item.value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {item.label}
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -80,5 +79,5 @@ export default function MyCombobox({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

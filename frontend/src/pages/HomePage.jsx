@@ -7,44 +7,35 @@ import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import TransactionForm from "../components/TransactionForm";
 
-import { INITIAL_WALLETS } from "../lib/mockData";
-import { deleteSpendings, getSpendings } from "../services/SpendingServices";
+import { deleteSpendings, getSpendings } from "../services/transactionsServices";
 import { useTransactions } from "../hooks/useTransactions";
 import { toast } from "sonner";
 
+import WalletForm from "@/components/WalletForm";
+import ExpenseAnalyze from "@/components/ExpenseAnalyze";
+import { useTransactionsStore } from "@/stores/useTransactionsStore";
+import { useWalletStore } from "@/stores/useWalletStore";
+
 function HomePage() {
-  const [transactions, setTransactions] = useState([]);
+ 
+  const [walletForm, setWalletForm] = useState(false);
   const [selectedDateFilter, setSelectedDateFilter] = useState("day");
 
   const [isOpenForm, setIsOpenForm] = useState(false);
-  const [isInsertMode, setIsInsertMode] = useState(false);
-  const [selectedWallet, setSelectedWallet] = useState("cash");
-  const [offset, setOffSet] = useState(0);
-  const [userWallet, setUserWallet] = useState(INITIAL_WALLETS);
 
+const fetchWallet = useWalletStore((state) => state.fetchWallets);
+ const selectedWallet = useWalletStore((state) => state.selectedWallet);
+ const wallet = selectedWallet?.walletName;
+   const fetchTransactions = useTransactionsStore((state)=> state.fetchTransactions);
   useEffect(() => {
     fetchTransactions();
+     fetchWallet();
   }, []);
-  const { TransFilter, transactionCalculation } = useTransactions({
-    selectedWallet,
-    transactions,
-    selectedDateFilter,
-    offset,
-  });
 
-  const fetchTransactions = async () => {
-    try {
-      const response = await getSpendings();
 
-      setTransactions(response.data);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    }
-  };
+ 
   const handleUpdateTransaction = (updatedData) => {
-    setTransactions((prev) =>
-      prev.map((item) => (item._id === updatedData._id ? updatedData : item)),
-    );
+   
   };
   const handleDeleteTransaction = async (transactionId) => {
     try {
@@ -74,33 +65,34 @@ function HomePage() {
           selectedDateFilter={selectedDateFilter}
           setSelectedDateFilter={setSelectedDateFilter}
         />
-        <TotalBalance
-          userWallet={userWallet}
-          setUserWallet={setUserWallet}
+        <ExpenseAnalyze
+        selectedDateFilter={selectedDateFilter}
+      />
+        {/* <TotalBalance
           isInsertMode={isInsertMode}
           setIsInsertMode={setIsInsertMode}
-          selectedWallet={selectedWallet}
-          setSelectedWallet={setSelectedWallet}
           selectedDateFilter={selectedDateFilter}
-          setSelectedDateFilter={setSelectedDateFilter}
           expenseStats={transactionCalculation}
-        />
+        /> */}
         {/* <FilterBar /> */}
-        <TransactionTable
+        {/* <TransactionTable
           handleUpdateTransaction={handleUpdateTransaction}
           transactions={TransFilter.filteredTransByDate}
           deleteTransaction={handleDeleteTransaction}
           setOffSet={setOffSet}
           offSet={offset}
           selectedDateFilter={selectedDateFilter}
-        />
+        /> */}
         {/* <TablePagination /> */}
-        <NavBar setIsOpenForm={setIsOpenForm} />
+        <NavBar setIsOpenForm={setIsOpenForm}  setWalletForm={setWalletForm}/>
         {isOpenForm && (
           <TransactionForm
-            setTransactions={setTransactions}
+            
             setIsOpenForm={setIsOpenForm}
           />
+        )}
+        {walletForm && (
+          <WalletForm setWalletForm={setWalletForm}/>
         )}
       </main>
       <Footer />

@@ -40,7 +40,7 @@ export const SpendingSchema = new mongoose.Schema(
 
     walletType: {
       type: String,
-      enum: ["momo", "sacombank", "cash", "bidv"],
+     
       required: true,
     },
   },

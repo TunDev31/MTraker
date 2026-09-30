@@ -1,264 +1,224 @@
+import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "./ui/input";
+import { useWalletStore } from "@/stores/useWalletStore";
+import MyCombobox from "./ui/MyCombobox";
 
-import { useFormHandling } from "@/hooks/useFormHandling";
-import { TablePagination } from "./TablePagination";
-const TransactionForm = ({setTransactions, setIsOpenForm }) => {
+// 1. Định nghĩa Zod Schema
+const transactionSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Bạn chưa nhập tên giao dịch!")
+    .max(20, "Tên giao dịch tối đa chỉ 20 kí tự!"),
+  amount: z.coerce
+    .number({ invalid_type_error: "Vui lòng nhập số!" })
+    .positive("Số tiền phải lớn hơn 0!")
+    .int("Số tiền phải là số nguyên!"),
+  description: z.string().max(100, "Mô tả chỉ tối đa 100 ký tự!").optional(),
+  tag: z
+    .array(z.string())
+    .min(1, "Vui lòng chọn ít nhất 1 tag!")
+    .max(3, "Chỉ có thể chọn tối đa 3 tag!"),
+  type: z.enum(["EXPENSE", "INCOME"], {
+    errorMap: () => ({ message: "Loại giao dịch không hợp lệ!" }),
+  }),
+  walletType: z.string().min(1, "Bạn chưa chọn ví để thực hiện giao dịch!"),
+});
 
-  /*Custom Hook */
+const defaultFormValues = {
+  title: "",
+  amount: "",
+  description: "",
+  tag: [],
+  type: "EXPENSE",
+  walletType: "",
+};
+
+const TransactionForm = ({ setTransactions, setIsOpenForm }) => {
+  // 2. Lấy danh sách ví từ Zustand Store
+  const getWalletOptions = useWalletStore((state) => state.getWalletOptions);
+  const options = getWalletOptions ? getWalletOptions() : [];
+
+  // 3. Khởi tạo useForm
   const {
-    setSelectedType,
-    setSelectedCashType,
-    setSpendingName,
-    setSpendingAmount,
+    register,
     handleSubmit,
-    setSpendingDesc,
-    handleTagSelect,
-  } = useFormHandling(setTransactions, setIsOpenForm);
-  /*Custom Hook */
-  
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(transactionSchema),
+    defaultValues: defaultFormValues,
+  });
+
+  const onSubmit = (data) => {
+    console.log("Dữ liệu submit:", data);
+    if (setTransactions) {
+      setTransactions((prev) => [...prev, data]);
+    }
+    setIsOpenForm(false);
+  };
+
   return (
-    
     <div
-      className="fixed inset-0 z-999 w-full h-full bg-black/60 backdrop-blur-sm p-4 flex items-center justify-center"
-      onClick={() => {
-        setIsOpenForm(false);
-      }} 
+      className="fixed inset-0 z-50 w-full h-full bg-black/60 backdrop-blur-sm p-4 flex items-center justify-center"
+      onClick={() => setIsOpenForm(false)}
     >
-     
       <div
-        className="relative w-full bg-[#1e1f24] text-white rounded-2xl p-5 shadow-2xl border border-gray-800"
+        className="relative w-full max-w-lg bg-[#1e1f24] text-white rounded-2xl p-5 shadow-2xl border border-gray-800"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-800">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-[#ccff00] text-black flex items-center justify-center font-bold text-sm">
               +
             </div>
             <h3 className="text-[#ccff00] font-bold text-base uppercase tracking-wider">
-              Thêm khoản chi tiêu mới
+              Thêm khoản giao dịch mới
             </h3>
           </div>
-
-          {/* Nút đóng X */}
           <button
             type="button"
-            onClick={() => {
-              setIsOpenForm(false);
-            }}
+            onClick={() => setIsOpenForm(false)}
             className="text-gray-400 hover:text-red-500 text-xl font-bold p-1 transition-colors leading-none"
           >
             ✕
           </button>
         </div>
 
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          {/* Tên giao dịch */}
           <div>
-            <label
-              htmlFor="expenseName"
-              className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide"
-            >
-              Tên khoản chi
+            <label htmlFor="title" className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide">
+              Tên khoản giao dịch
             </label>
-            <input
+            <Input
               type="text"
-              id="expenseName"
-              name="expenseName"
+              id="title"
               placeholder="VD: Mua trà sữa..."
-              onChange={(e) => setSpendingName(e.target.value)}
               className="w-full bg-[#2a2b30] border border-gray-700 focus:border-[#ccff00] focus:outline-none text-white text-sm rounded-xl px-3.5 py-2.5 transition-colors placeholder-gray-500"
+              {...register("title")}
             />
+            {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
           </div>
 
+          {/* Loại giao dịch */}
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">
               Loại
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {/* Radio Expense */}
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
+              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-[:checked]:border-[#ccff00] has-[:checked]:bg-[#ccff00]/10 cursor-pointer transition-all">
                 <input
                   type="radio"
-                  id="expense"
-                  name="type"
-                  value="expense"
-                  defaultChecked
-                  onChange={(e) => setSelectedType(e.target.value)}
+                  value="EXPENSE"
                   className="accent-[#ccff00] w-4 h-4"
+                  {...register("type")}
                 />
-                <span className="text-sm font-medium text-gray-200">
-                  Chi tiêu
-                </span>
+                <span className="text-sm font-medium text-gray-200">Chi tiêu</span>
               </label>
 
-              {/* Radio Income */}
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
+              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-[:checked]:border-[#ccff00] has-[:checked]:bg-[#ccff00]/10 cursor-pointer transition-all">
                 <input
                   type="radio"
-                  id="income"
-                  name="type"
-                  value="income"
-                  onChange={(e) => setSelectedType(e.target.value)}
+                  value="INCOME"
                   className="accent-[#ccff00] w-4 h-4"
+                  {...register("type")}
                 />
-                <span className="text-sm font-medium text-gray-200">
-                  Thu nhập
-                </span>
+                <span className="text-sm font-medium text-gray-200">Thu nhập</span>
               </label>
             </div>
+            {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type.message}</p>}
           </div>
 
+          {/* Ví giao dịch (Dùng Controller để binding với MyCombobox) */}
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">
               Loại Ví
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              {/* Radio Expense */}
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
-                <input
-                  type="radio"
-                  id="cash"
-                  name="typeCash"
-                  value="cash"
-                  defaultChecked
-                  onChange={(e) => setSelectedCashType(e.target.value)}
-                  className="accent-[#ccff00] w-4 h-4"
+            <Controller
+              name="walletType"
+              control={control}
+              render={({ field }) => (
+                <MyCombobox
+                  value={field.value}
+                  onChange={field.onChange}
+                  data={options}
                 />
-                <span className="text-sm font-medium text-gray-200">
-                  TIỀN MẶT
-                </span>
-              </label>
-
-              {/* Radio Income */}
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
-                <input
-                  type="radio"
-                  id="bidv"
-                  name="typeCash"
-                  value="bidv"
-                  onChange={(e) => setSelectedCashType(e.target.value)}
-                  className="accent-[#ccff00] w-4 h-4"
-                />
-                <span className="text-sm font-medium text-gray-200">BIDV</span>
-              </label>
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
-                <input
-                  type="radio"
-                  id="momo"
-                  name="typeCash"
-                  value="momo"
-                  onChange={(e) => setSelectedCashType(e.target.value)}
-                  className="accent-[#ccff00] w-4 h-4"
-                />
-                <span className="text-sm font-medium text-gray-200">MOMO</span>
-              </label>
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
-                <input
-                  type="radio"
-                  id="sacombank"
-                  name="typeCash"
-                  value="sacombank"
-                  onChange={(e) => setSelectedCashType(e.target.value)}
-                  className="accent-[#ccff00] w-4 h-4"
-                />
-                <span className="text-sm font-medium text-gray-200">
-                  SACOMBANK
-                </span>
-              </label>
-            </div>
+              )}
+            />
+            {errors.walletType && <p className="text-red-500 text-xs mt-1">{errors.walletType.message}</p>}
           </div>
 
+          {/* Số tiền */}
           <div>
-            <label
-              htmlFor="expenseAmount"
-              className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide"
-            >
+            <label htmlFor="amount" className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide">
               Số tiền (VND)
             </label>
             <input
               type="number"
-              id="expenseAmount"
-              name="expenseAmount"
+              id="amount"
               placeholder="VD: 50000"
-              onChange={(e) => setSpendingAmount(Number(e.target.value))}
               className="w-full bg-[#2a2b30] border border-gray-700 focus:border-[#ccff00] focus:outline-none text-white text-sm rounded-xl px-3.5 py-2.5 transition-colors placeholder-gray-500"
+              {...register("amount")}
             />
+            {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount.message}</p>}
           </div>
 
+          {/* Tags */}
           <div>
-            <label
-              htmlFor="expenseDesc"
-              className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide"
-            >
+            <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide">
               Tags
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
-                <input
-                  type="checkbox"
-                  id="tags"
-                  name="tags"
-                  value="food"
-                  onChange={(e) => handleTagSelect(e)}
-                  className="accent-[#ccff00] w-4 h-4"
-                />
-                <span className="text-sm font-medium text-gray-200">
-                  ĂN UỐNG
-                </span>
-              </label>
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
-                <input
-                  type="checkbox"
-                  id="tags"
-                  name="tags"
-                  value="travel"
-                  onChange={(e) => handleTagSelect(e)}
-                  className="accent-[#ccff00] w-4 h-4"
-                />
-                <span className="text-sm font-medium text-gray-200">
-                  ĐI LẠI
-                </span>
-              </label>
-              <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-checked]:border-[#ccff00] has-checked:bg-[#ccff00]/10 cursor-pointer transition-all">
-                <input
-                  type="checkbox"
-                  id="tags"
-                  name="tags"
-                  value="entertainment"
-                  onChange={(e) => handleTagSelect(e)}
-                  className="accent-[#ccff00] w-4 h-4"
-                />
-                <span className="text-sm font-medium text-gray-200">
-                  GIẢI TRÍ
-                </span>
-              </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: "ĂN UỐNG", value: "food" },
+                { label: "ĐI LẠI", value: "travel" },
+                { label: "GIẢI TRÍ", value: "entertainment" },
+              ].map((tagItem) => (
+                <label
+                  key={tagItem.value}
+                  className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-[:checked]:border-[#ccff00] has-[:checked]:bg-[#ccff00]/10 cursor-pointer transition-all"
+                >
+                  <input
+                    type="checkbox"
+                    value={tagItem.value}
+                    className="accent-[#ccff00] w-4 h-4"
+                    {...register("tag")}
+                  />
+                  <span className="text-xs font-medium text-gray-200">{tagItem.label}</span>
+                </label>
+              ))}
             </div>
+            {errors.tag && <p className="text-red-500 text-xs mt-1">{errors.tag.message}</p>}
           </div>
+
+          {/* Mô tả */}
           <div>
-            <label
-              htmlFor="expenseDesc"
-              className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide"
-            >
+            <label htmlFor="description" className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide">
               Mô tả
             </label>
             <textarea
-              id="expenseDesc"
-              name="expenseDesc"
+              id="description"
               rows={2}
               placeholder="Chi tiết nếu có..."
-              onChange={(e) => setSpendingDesc(e.target.value)}
               className="w-full bg-[#2a2b30] border border-gray-700 focus:border-[#ccff00] focus:outline-none text-white text-sm rounded-xl px-3.5 py-2.5 transition-colors resize-none placeholder-gray-500"
+              {...register("description")}
             />
+            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
           </div>
 
+          {/* Submit button */}
           <button
             type="submit"
-            onClick={handleSubmit}
-            className="w-full mt-2 bg-[#ccff00] hover:bg-[#b5f100] text-black font-bold text-sm py-3 rounded-xl transition-all shadow-lg active:scale-[0.99] cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full mt-2 bg-[#ccff00] hover:bg-[#b5f100] text-black font-bold text-sm py-3 rounded-xl transition-all shadow-lg active:scale-[0.99] cursor-pointer disabled:opacity-50"
           >
-            Thêm mới
+            {isSubmitting ? "Đang xử lý..." : "Thêm mới"}
           </button>
         </form>
       </div>
-    
     </div>
   );
 };

@@ -3,7 +3,7 @@ import Spending from "../Model/Spending.js";
 // 1. GET ALL SPENDING
 export const getAllSpending = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user._id;
     const spendings = await Spending.find({ userId }).sort({ createdAt: -1 });
     return res.status(200).json(spendings);
   } catch (error) {
@@ -15,7 +15,7 @@ export const getAllSpending = async (req, res) => {
 // 2. CREATE SPENDING
 export const createSpending = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user._id;
     
     // 1. Kiểm tra userId
     if (!userId) {
@@ -57,8 +57,7 @@ export const createSpending = async (req, res) => {
     console.error("🔴 LỖI CHI TIẾT KHI CREATE SPENDING:", error);
     
     return res.status(500).json({ 
-      message: "Lỗi hệ thống khi tạo giao dịch!", 
-      errorDetail: error.message 
+      message: "Lỗi hệ thống khi tạo giao dịch!"
     });
   }
 };
@@ -67,7 +66,7 @@ export const createSpending = async (req, res) => {
 export const updateSpending = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.userId;
+    const userId = req.user._id;
     const { title, amount, tag } = req.body;
     const errors = [];
 
@@ -112,7 +111,7 @@ export const updateSpending = async (req, res) => {
 export const deleteSpending = async (req, res) => {
   try {
     const { id } = req.params; // Lấy ID từ URL params
-    const userId = req.userId;
+    const userId = req.user._id;
 
     const deletedSpending = await Spending.findOneAndDelete({ _id: id, userId });
 

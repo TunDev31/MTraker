@@ -32,10 +32,10 @@ export function SignInForm({ className, ...props }) {
   });
    const {signIn} =  userStore();
   const navigate = useNavigate();
-  const onSubmit = async (data)=> {
+  const onSubmit = async (data) => {
       const {userName, password} = data;
-      await signIn(userName, password);
-      navigate("/")
+      const success = await signIn(userName, password);
+      if (success) navigate("/");
   }
   return (
     <div className={cn("flex flex-col gap-3 ", className)} {...props}>

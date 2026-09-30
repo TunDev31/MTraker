@@ -1,17 +1,36 @@
-import { Plus } from 'lucide-react'
-import React from 'react'
+import { Plus } from 'lucide-react';
+import React from 'react';
 
-const NavBar = ({ setIsOpenForm }) => {
+const NavBar = ({ setIsOpenForm, setWalletForm }) => {
   return (
-    <div className='fixed z-100 bottom-0 h-20 w-full bg-white '>
-          <div onClick={() => setIsOpenForm(true)}
-          className='flex justify-center items-center absolute top-0 left-[50%] transform -translate-x-1/2  bg-(--Green-color) h-16 w-16 rounded-full border-2 border-(--Green-color) shadow-lg'>
-             <button  className='bg-(--Green-color) rounded-full'>
-              <Plus  className='text-white' />
-             </button>
+    <div className="fixed bottom-0 left-0 z-50 h-16 w-full border-t border-gray-200 bg-white shadow-lg">
+      <div className="mx-auto grid h-full max-w-lg grid-cols-2">
+        {/* Nút 1: Thêm Chi Tiêu */}
+        <button
+          type="button"
+          onClick={() => setIsOpenForm(true)}
+          className="inline-flex flex-col items-center justify-center font-medium px-5 hover:bg-gray-50 text-gray-700 transition-colors"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--Green-color,#22c55e)] text-white shadow-md">
+            <Plus className="h-5 w-5" />
           </div>
-        </div>
-  )
-}
+          <span className="text-xs mt-1 text-gray-600">Thêm thu chi</span>
+        </button>
 
-export default NavBar
+        {/* Nút 2: Thêm Ví */}
+        <button
+          type="button"
+          onClick={() => setWalletForm(true)}
+          className="inline-flex flex-col items-center justify-center font-medium px-5 hover:bg-gray-50 text-gray-700 transition-colors"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--Green-color,#22c55e)] text-white shadow-md">
+            <Plus className="h-5 w-5" />
+          </div>
+          <span className="text-xs mt-1 text-gray-600">Thêm ví</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default NavBar;

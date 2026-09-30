@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import { toast, Toaster } from "sonner";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <>
@@ -21,7 +22,9 @@ function App() {
     <Routes>
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-         <Route path="/" element={<HomePage />} />
+         <Route element={<ProtectedRoute/>}>
+           <Route path="/" element={<HomePage />} />
+         </Route>
       </Routes>
     </BrowserRouter>
     </>

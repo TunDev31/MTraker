@@ -1,5 +1,18 @@
-import { Bell, CircleDollarSign, CircleUserRound } from "lucide-react";
+import { userStore } from "@/stores/useAuthStore";
+import { Bell, CircleDollarSign, CircleUserRound, SquareArrowRightExit } from "lucide-react";
+import { useNavigate } from "react-router";
+
 const Header = () => {
+  const {signOut} = userStore();
+  const navigate = useNavigate();
+  const handleLogOut = async ()=> {
+      try {
+        await signOut();
+        navigate("/signin");
+      } catch (error) {
+        console.error("Loi khi dang xuat!");
+      }
+  }
   return (
     <header
       className="flex w-full items-center justify-between  border-b-2
@@ -19,6 +32,9 @@ const Header = () => {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-950"></span>
         </button>
         <CircleUserRound color="black" className="w-7 h-7" />
+        <button onClick={handleLogOut}>
+          <SquareArrowRightExit />
+        </button>
       </div>
     </header>
   );

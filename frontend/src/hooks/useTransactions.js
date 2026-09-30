@@ -23,11 +23,13 @@ export const useTransactions = ({
       selectedDateFilter,
       1,
     );
+    console.log("prevTrans"+prevfilteredTrans);
     const filteredTrans = filterTransactionsByDate(
       transactions,
       selectedDateFilter,
       0,
     );
+    console.log("filteredTrans"+filteredTrans);
     const filteredTransByDate = filterTransactionsByDate(
       transactions,
       selectedDateFilter,
@@ -41,8 +43,9 @@ export const useTransactions = ({
   }, [transactions, offset, selectedDateFilter]);
 
   const transactionCalculation = useMemo(() => {
-    const totalExpenseAllTime = getTotalExpense(transactions, selectedWallet);
-    const totalIncomeAllTime =  getToltalIncome(transactions,selectedWallet);
+    const walletName = typeof selectedWallet === "object" ? selectedWallet?.walletName : selectedWallet;
+    const totalExpenseAllTime = getTotalExpense(transactions, walletName);
+    const totalIncomeAllTime =  getToltalIncome(transactions, walletName);
     const prevExpenseValueByDate = getPrevTotalExpense(
       TransFilter.prevfilteredTrans,
     );

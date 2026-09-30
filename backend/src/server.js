@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 import cookieParser from 'cookie-parser'
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import userRoutes from './Routes/userRoutes.js'
+import walletRoute from './Routes/walletRoute.js'
 dns.setServers(["8.8.8.8"]);
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use(cookieParser());
 app.use("/api/auth",authRoutes);
 app.use(protectedRoute);
 app.use("/api/users",userRoutes);
+app.use("/api/wallet", walletRoute);
 app.use("/api/spending", spendingRoutes);
 
 // Phục vụ frontend tĩnh khi ở môi trường production
