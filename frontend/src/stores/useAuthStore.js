@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 
 import { authService } from "@/services/authServices";
-import { setTokenGetter } from "@/lib/axios";
+import { setTokenGetter, setTokenSetter } from "@/lib/axios";
 
 
 export const userStore = create((set, get) => ({
@@ -69,5 +69,7 @@ export const userStore = create((set, get) => ({
   }
 }));
 
-// Đăng ký getter để axios interceptor tự động lấy accessToken
+// Đăng ký getter/setter để axios interceptor tự động lấy và lưu accessToken
 setTokenGetter(() => userStore.getState().accessToken);
+setTokenSetter((token) => userStore.setState({ accessToken: token }));
+
