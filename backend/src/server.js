@@ -15,7 +15,7 @@ dns.setServers(["8.8.8.8"]);
 dotenv.config();
 
 const app = express();
-app.set("trust proxy", 1); 
+app.set("trust proxy", 1); // Cần thiết cho cookie secure trên Render
 const PORT = process.env.PORT || 5001;
 
 // Xác định thư mục chuẩn theo vị trí file hiện tại
@@ -50,9 +50,8 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-app.use("/api/auth",authRoutes);
-
-app.use("/api/users",userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", protectedRoute, userRoutes);
 app.use("/api/transactions", protectedRoute, transactionsRoute);
 app.use("/api/wallets", protectedRoute, walletRoute);
 
@@ -69,7 +68,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 connectDB().then(() => {
-  app.listen(PORT, "0.0.0.0",() => {
+  app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server is running on port ${PORT}`);
   });
 });

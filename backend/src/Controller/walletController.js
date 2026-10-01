@@ -4,7 +4,7 @@ export const getUserWallet =async (req,res)=> {
 try {
     const userId = req.user._id;
     const wallet = await Wallet.find({userId});
-    return res.status(201).json(wallet);
+    return res.status(200).json(wallet);
 } catch (error) {
     console.error("Loi khi getWallet!");
     return res.status(501).json({message:"Loi he thong!"});
