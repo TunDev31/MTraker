@@ -15,6 +15,7 @@ dns.setServers(["8.8.8.8"]);
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1); 
 const PORT = process.env.PORT || 5001;
 
 // Xác định thư mục chuẩn theo vị trí file hiện tại
@@ -55,6 +56,7 @@ app.use("/api/users",userRoutes);
 app.use("/api/transactions", protectedRoute, transactionsRoute);
 app.use("/api/wallets", protectedRoute, walletRoute);
 
+app.use("/api", (req, res) => res.status(404).json({ message: "API not found" }));
 
 // Phục vụ frontend tĩnh khi ở môi trường production
 if (process.env.NODE_ENV === "production") {
