@@ -25,10 +25,18 @@ const frontendDistPath = path.resolve(__dirname, "../../frontend/dist"); // Tr�
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Cho phép tất cả request từ localhost (bất kỳ port nào) hoặc ngrok
-      if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1") || origin.includes("ngrok-free.dev")) {
+      // Cho phép request từ localhost, ngrok, hoặc Render
+      if (
+        !origin ||
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1") ||
+        origin.includes("ngrok-free.dev") ||
+        origin.includes("onrender.com")
+      ) {
         callback(null, true);
-      } 
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
