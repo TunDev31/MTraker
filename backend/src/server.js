@@ -42,10 +42,11 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth",authRoutes);
-app.use(protectedRoute);
+
 app.use("/api/users",userRoutes);
-app.use("/api/wallet", walletRoute);
-app.use("/api/transactions", transactionsRoute);
+app.use("/api/transactions", protectedRoute, transactionsRoute);
+app.use("/api/wallets", protectedRoute, walletRoute);
+
 
 // Phục vụ frontend tĩnh khi ở môi trường production
 if (process.env.NODE_ENV === "production") {
