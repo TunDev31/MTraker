@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import spendingRoutes from "./Routes/spendingRoutes.js";
+import transactionsRoute from "./Routes/transactionsRoute.js";
 import authRoutes from "./Routes/authRoutes.js";
 import dns from "dns";
 import { connectDB } from "./Lib/db.js";
@@ -24,10 +24,12 @@ const frontendDistPath = path.resolve(__dirname, "../../frontend/dist"); // Tr�
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://wildness-alfalfa-boggle.ngrok-free.dev",
-    ],
+    origin: (origin, callback) => {
+      // Cho phép tất cả request từ localhost (bất kỳ port nào) hoặc ngrok
+      if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1") || origin.includes("ngrok-free.dev")) {
+        callback(null, true);
+      } 
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -43,7 +45,7 @@ app.use("/api/auth",authRoutes);
 app.use(protectedRoute);
 app.use("/api/users",userRoutes);
 app.use("/api/wallet", walletRoute);
-app.use("/api/spending", spendingRoutes);
+app.use("/api/transactions", transactionsRoute);
 
 // Phục vụ frontend tĩnh khi ở môi trường production
 if (process.env.NODE_ENV === "production") {
@@ -56,7 +58,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT, "0.0.0.0",() => {
     console.log(`Server is running on port ${PORT}`);
   });
 });

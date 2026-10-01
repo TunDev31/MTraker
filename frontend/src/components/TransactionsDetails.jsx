@@ -2,12 +2,14 @@ import { cn } from "@/lib/utils";
 import {
   ArrowDownLeft,
   ArrowUpRight,
+  Ban,
   Calendar,
   Check,
   Film,
   HelpCircle,
   Pencil,
   RotateCcw,
+  ShoppingCart,
   Tag,
   Trash2,
   Utensils,
@@ -15,53 +17,56 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import MyCombobox from "./ui/MyCombobox";
-
-
-const WALLET_OPTIONS = [
-  { value: "cash", label: "Tiền mặt" },
-  { value: "momo", label: "Ví MoMo" },
-  { value: "bidv", label: "BIDV" },
-  { value: "sacombank", label: "Sacombank" },
-];
-
-const WALLET_LABELS = {
-  cash: "Tiền mặt",
-  momo: "Ví MoMo",
-  bidv: "BIDV",
-  sacombank: "Sacombank",
-};
+import { useTransactionsStore } from "@/stores/useTransactionsStore";
+import { useWalletStore } from "@/stores/useWalletStore";
 
 const TAG_CONFIG = {
   food: { label: "Ăn uống", icon: Utensils },
   travel: { label: "Đi lại", icon: Van },
   entertainment: { label: "Giải trí", icon: Film },
+  shopping: { label: "Mua sắm", icon: ShoppingCart },
+  khac: { label: "Khác", icon: HelpCircle },
+  none: { label: "Không có tag", icon: Ban },
 };
 
-const TransactionsDetails = ({
-  item,
-  onClose,
-  deleteTransaction,
-  handleUpdateTransaction,
-}) => {
+// Chấp nhận cả "food" lẫn ["food"] (DB vẫn lưu mảng), luôn trả về string
+
+const TransactionsDetails = ({ item, onClose }) => {
   const [isRewriteEnable, setRewriteEnable] = useState(false);
 
-  const {
-    spendingName,
-    spendingAmount,
-    spendingDesc,
-    selectedType,
-    selectedTag,
-    selectedCashType,
-    setSelectedType,
-    setSelectedCashType,
-    setSpendingName,
-    setSpendingAmount,
-    handleSubmit,
-    setSpendingDesc,
-    handleTagSelect,
-  } = useUpdateTrans(setRewriteEnable, item, handleUpdateTransaction);
+  const wallets = useWalletStore((state) => state.wallets);
+  const walletOptions = useMemo(
+    () => wallets.map((w) => ({ label: w.walletName, value: w.walletName })),
+    [wallets],
+  );
+
+  // --- State chỉnh sửa, khởi tạo từ item ---
+  const [selectedType, setSelectedType] = useState(item?.type || "expense");
+  const [selectedCashType, setSelectedCashType] = useState(
+    item?.walletType || "cash",
+  );
+  const [selectedTag, setSelectedTag] = useState(item?.tag || "");
+  const [spendingName, setSpendingName] = useState(item?.title || "");
+  const [spendingAmount, setSpendingAmount] = useState(item?.amount || 0);
+  const [spendingDesc, setSpendingDesc] = useState(item?.description || "");
+
+  const updateTransactions = useTransactionsStore(
+    (state) => state.updateTransactions,
+  );
+  const deleteTransaction = useTransactionsStore(
+    (state) => state.deleteTransaction,
+  );
+
+  // Lưu
+  const [isSaving, setIsSaving] = useState(false);
+  const [updateError, setUpdateError] = useState(false);
+
+  // Luồng xóa: bấm Xóa -> xác nhận -> gọi API
+  const [isConfirmingDelete, setConfirmingDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
 
   const itemDate = new Date(item?.createdAt || Date.now());
   const timeString = itemDate.toLocaleTimeString("vi-VN", {
@@ -74,26 +79,82 @@ const TransactionsDetails = ({
     year: "numeric",
   });
 
-  const primaryTagKey = selectedTag?.[0]?.toLowerCase();
+  const primaryTagKey = selectedTag.toLowerCase();
   const TagIcon = TAG_CONFIG[primaryTagKey]?.icon || HelpCircle;
 
   const isExpense = selectedType === "expense";
+  const visibleTags = Object.entries(TAG_CONFIG).filter(
+    ([key]) => key !== "none" && (isExpense ? key !== "khac" : key === "khac"),
+  );
+  // Chọn 1 tag (string)
+  const handleTagSelect = (e) => {
+    setSelectedTag(e.target.value);
+  };
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+    if (isSaving) return;
+    if (!spendingName.trim() || Number(spendingAmount) <= 0 || !selectedTag)
+      return;
+
+    setIsSaving(true);
+    setUpdateError(false);
+    try {
+      const ok = await updateTransactions({
+        ...item,
+        type: selectedType,
+        walletType: selectedCashType,
+        tag: selectedTag, // string
+        title: spendingName.trim(),
+        amount: Number(spendingAmount),
+        description: spendingDesc,
+      });
+
+      // store trả false khi lỗi -> giữ form mở để người dùng thử lại
+      if (ok === true) setRewriteEnable(false);
+      else setUpdateError(true);
+    } catch {
+      setUpdateError(true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    setDeleteError(false);
+    try {
+      const ok = await deleteTransaction(item._id);
+      if (ok) {
+        onClose(); // giao dịch đã bị gỡ khỏi store, đóng khung chi tiết
+      } else {
+        setDeleteError(true);
+      }
+    } catch {
+      setDeleteError(true);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleCancelEdit = () => {
     // Khôi phục lại trạng thái ban đầu từ item
     if (item) {
       setSelectedType(item.type || "expense");
       setSelectedCashType(item.walletType || "cash");
+      setSelectedTag(item.tag || "");
       setSpendingName(item.title || "");
       setSpendingAmount(item.amount || 0);
       setSpendingDesc(item.description || "");
     }
+    setUpdateError(false);
     setRewriteEnable(false);
   };
 
   return (
     <div className="w-full max-w-md bg-white border border-gray-200 rounded-3xl p-5 shadow-2xl transition-all duration-200 text-gray-800">
-      {/* < Header: Icon, Tiêu đề, Thời gian & Nút Đóng >*/}
+      {/* Header: Icon, Tiêu đề, Thời gian & Nút Đóng */}
       <div className="flex justify-between items-center pb-3 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div
@@ -101,7 +162,7 @@ const TransactionsDetails = ({
               "w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-colors shadow-xs",
               isExpense
                 ? "bg-red-50 text-red-600 border border-red-100"
-                : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                : "bg-emerald-50 text-emerald-600 border border-emerald-100",
             )}
           >
             <TagIcon size={22} />
@@ -128,10 +189,9 @@ const TransactionsDetails = ({
           <X size={18} />
         </button>
       </div>
-      {/* < Header: Icon, Tiêu đề, Thời gian & Nút Đóng  /> */}
 
       <div className="flex flex-col gap-4 mt-4">
-        {/* < 2. Bộ chọn Loại giao dịch (Chi tiêu / Thu nhập) >*/}
+        {/* 2. Bộ chọn Loại giao dịch (Chi tiêu / Thu nhập) */}
         {isRewriteEnable ? (
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase tracking-wider text-gray-500">
@@ -145,7 +205,7 @@ const TransactionsDetails = ({
                   "flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs transition-all cursor-pointer",
                   isExpense
                     ? "bg-red-500 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    : "text-gray-600 hover:text-gray-900",
                 )}
               >
                 <ArrowDownLeft size={16} />
@@ -158,7 +218,7 @@ const TransactionsDetails = ({
                   "flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs transition-all cursor-pointer",
                   !isExpense
                     ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    : "text-gray-600 hover:text-gray-900",
                 )}
               >
                 <ArrowUpRight size={16} />
@@ -173,7 +233,7 @@ const TransactionsDetails = ({
                 "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider",
                 isExpense
                   ? "bg-red-50 text-red-600 border border-red-200"
-                  : "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                  : "bg-emerald-50 text-emerald-600 border border-emerald-200",
               )}
             >
               {isExpense ? (
@@ -195,13 +255,13 @@ const TransactionsDetails = ({
             "p-3.5 rounded-2xl border transition-all",
             isExpense
               ? "bg-red-50/70 border-red-200/80"
-              : "bg-emerald-50/70 border-emerald-200/80"
+              : "bg-emerald-50/70 border-emerald-200/80",
           )}
         >
           <p
             className={cn(
               "text-xs font-bold uppercase tracking-wider mb-1",
-              isExpense ? "text-red-700" : "text-emerald-700"
+              isExpense ? "text-red-700" : "text-emerald-700",
             )}
           >
             {isExpense ? "Số tiền chi" : "Số tiền nhận"}
@@ -212,19 +272,19 @@ const TransactionsDetails = ({
               <span
                 className={cn(
                   "text-2xl sm:text-3xl font-extrabold tracking-tight",
-                  isExpense ? "text-red-600" : "text-emerald-600"
+                  isExpense ? "text-red-600" : "text-emerald-600",
                 )}
               >
                 {isExpense ? "- " : "+ "}
-                {Number(spendingAmount || 0).toLocaleString("vi-VN")}
+                {Number(spendingAmount).toLocaleString("vi-VN")}
               </span>
               <span
                 className={cn(
                   "text-base font-bold",
-                  isExpense ? "text-red-500" : "text-emerald-500"
+                  isExpense ? "text-red-500" : "text-emerald-500",
                 )}
               >
-                ₫
+                VND
               </span>
             </div>
           ) : (
@@ -232,7 +292,7 @@ const TransactionsDetails = ({
               <span
                 className={cn(
                   "font-bold text-lg",
-                  isExpense ? "text-red-500" : "text-emerald-500"
+                  isExpense ? "text-red-500" : "text-emerald-500",
                 )}
               >
                 {isExpense ? "-" : "+"}
@@ -240,7 +300,7 @@ const TransactionsDetails = ({
               <input
                 type="number"
                 value={spendingAmount}
-                onChange={(e) => setSpendingAmount(Number(e.target.value))}
+                onChange={(e) => setSpendingAmount(e.target.value)}
                 placeholder="0"
                 className="w-full text-xl font-bold bg-transparent outline-none focus:outline-none text-gray-900"
               />
@@ -269,7 +329,7 @@ const TransactionsDetails = ({
           )}
         </div>
 
-        {/* 5. Danh mục (Tags) & Phương thức (Ví) */}
+        {/* 5. Danh mục (Tag) & Phương thức (Ví) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Danh mục */}
           <div className="space-y-1">
@@ -278,20 +338,17 @@ const TransactionsDetails = ({
             </label>
             {!isRewriteEnable ? (
               <div className="flex flex-wrap gap-1.5 bg-gray-50 p-2 rounded-xl border border-gray-100 min-h-10.5 items-center">
-                {selectedTag?.length > 0 ? (
-                  selectedTag.map((tag, idx) => {
-                    const cfg = TAG_CONFIG[tag?.toLowerCase()];
+                {selectedTag ? (
+                  (() => {
+                    const cfg = TAG_CONFIG[selectedTag.toLowerCase()];
                     const Icon = cfg?.icon || HelpCircle;
                     return (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200/60 text-xs font-semibold px-2 py-0.5 rounded-lg"
-                      >
+                      <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200/60 text-xs font-semibold px-2 py-0.5 rounded-lg">
                         <Icon size={12} />
-                        {cfg?.label || tag}
+                        {cfg?.label || selectedTag}
                       </span>
                     );
-                  })
+                  })()
                 ) : (
                   <span className="text-xs text-gray-400 italic">
                     Không có tag
@@ -300,19 +357,21 @@ const TransactionsDetails = ({
               </div>
             ) : (
               <div className="flex flex-wrap gap-1.5 p-1">
-                {Object.entries(TAG_CONFIG).map(([key, cfg]) => {
-                  const isChecked = selectedTag?.includes(key);
+                {visibleTags.map(([key, cfg]) => {
+                  const isChecked = selectedTag === key;
                   const Icon = cfg.icon;
                   return (
                     <button
                       key={key}
                       type="button"
-                      onClick={() => handleTagSelect({ target: { value: key } })}
+                      onClick={() =>
+                        handleTagSelect({ target: { value: key } })
+                      }
                       className={cn(
                         "flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer",
                         isChecked
                           ? "bg-[#ccff00] text-black border-[#ccff00] font-bold shadow-xs"
-                          : "bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200"
+                          : "bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200",
                       )}
                     >
                       <Icon size={13} />
@@ -332,7 +391,7 @@ const TransactionsDetails = ({
             {!isRewriteEnable ? (
               <div className="flex items-center gap-1.5 bg-gray-50 px-3.5 py-2.5 rounded-xl border border-gray-100 min-h-10.5">
                 <span className="text-sm font-semibold text-gray-800">
-                  {WALLET_LABELS[selectedCashType] || selectedCashType}
+                  {selectedCashType || "Không xác định"}
                 </span>
               </div>
             ) : (
@@ -343,7 +402,7 @@ const TransactionsDetails = ({
                 emptyMessage="Không tìm thấy ví"
                 value={selectedCashType}
                 onChange={(val) => setSelectedCashType(val)}
-                data={WALLET_OPTIONS}
+                data={walletOptions}
               />
             )}
           </div>
@@ -372,18 +431,57 @@ const TransactionsDetails = ({
             />
           )}
         </div>
+
+        {updateError && (
+          <p role="alert" className="text-xs font-medium text-red-600">
+            Không lưu được, vui lòng thử lại.
+          </p>
+        )}
       </div>
 
       {/* 7. Action Buttons ở đáy */}
-      <div className="flex items-center justify-between gap-3 mt-1 pt-1 border-t border-gray-100">
-        {!isRewriteEnable ? (
+      <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100">
+        {isConfirmingDelete ? (
+          <div className="flex w-full flex-col gap-2">
+            <p className="text-sm font-semibold text-gray-900">
+              Xóa giao dịch này?
+            </p>
+            <p className="text-xs text-gray-500">
+              Số dư ví sẽ được tính lại. Không thể hoàn tác.
+            </p>
+            {deleteError && (
+              <p role="alert" className="text-xs font-medium text-red-600">
+                Không xóa được, vui lòng thử lại.
+              </p>
+            )}
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => {
+                  setConfirmingDelete(false);
+                  setDeleteError(false);
+                }}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+              >
+                Giữ lại
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleDelete}
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-white bg-red-600 hover:bg-red-700 text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50"
+              >
+                <Trash2 size={15} />
+                {isDeleting ? "Đang xóa..." : "Xóa"}
+              </button>
+            </div>
+          </div>
+        ) : !isRewriteEnable ? (
           <>
             <button
               type="button"
-              onClick={() => {
-                deleteTransaction(item._id);
-                onClose();
-              }}
+              onClick={() => setConfirmingDelete(true)}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 text-xs font-bold transition-all cursor-pointer"
             >
               <Trash2 size={15} />
@@ -403,8 +501,9 @@ const TransactionsDetails = ({
           <>
             <button
               type="button"
+              disabled={isSaving}
               onClick={handleCancelEdit}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-xs font-semibold transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
             >
               <RotateCcw size={14} />
               Hủy
@@ -412,11 +511,12 @@ const TransactionsDetails = ({
 
             <button
               type="button"
+              disabled={isSaving}
               onClick={(e) => handleSubmit(e)}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-black bg-[#ccff00] hover:bg-[#b8e600] font-bold text-xs shadow-md transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-black bg-[#ccff00] hover:bg-[#b8e600] font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
             >
               <Check size={16} />
-              Lưu thay đổi
+              {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
             </button>
           </>
         )}

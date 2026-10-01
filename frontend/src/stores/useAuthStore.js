@@ -44,8 +44,9 @@ export const userStore = create((set, get) => ({
   },
   signOut: async ()=> {
     try {
-        get().clearState();
+        
         await authService.signOut();
+        get().clearState();
         toast("Logout thành công!");
     } catch (error) {
         console.error("Loi he thong!");

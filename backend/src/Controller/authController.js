@@ -11,11 +11,11 @@ export const signUp = async (req,res)=> {
     try {
         const {userName, password,email,firstName, lastName,} = req.body;
         if (!userName || !password || !email|| !firstName || !lastName) {
-            return res.status(404).json({message:"Thong tin khong duoc de trong!"})
+            return res.status(400).json({message:"Thong tin khong duoc de trong!"})
         }
         const isDuplicatedUser = await  User.findOne({userName});
         if (isDuplicatedUser) {
-            return res.status(404).json({message:"Nguoi dung da ton tai!"})
+            return res.status(400).json({message:"Nguoi dung da ton tai!"})
         }
         const hashedPassword = await bcrypt.hash(password,10);
         await User.create({
@@ -35,14 +35,14 @@ export const signIn = async (req,res) => {
     try {
         const {userName, password} = req.body;
         if (!userName || !password) {
-            return res.status(404).json({message:"Thong tin dang nhap khong duoc de trong!"})
+            return res.status(400).json({message:"Thong tin dang nhap khong duoc de trong!"})
         }
         const user = await User.findOne({userName});
         if (!user) {
-            return res.status(404).json({message:"username hoac password khong chinh xac"});
+            return res.status(400).json({message:"username hoac password khong chinh xac"});
         }
         const isPasswordCorrect = await bcrypt.compare(password, user.hashedPassword);
-        if (!isPasswordCorrect) return res.status(404).json({message:"username hoac password khong chinh xac"});
+        if (!isPasswordCorrect) return res.status(400).json({message:"username hoac password khong chinh xac"});
 
         const accessToken = jwt.sign({userId: user._id},process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL});
         const refreshToken = crypto.randomBytes(64).toString('hex');

@@ -1,57 +1,74 @@
-
 import { cn } from "@/lib/utils";
 import TransactionsIcon from "./TransactionsIcon";
+
 function TransactionItem({ item, setSelectedItem }) {
-  const iconKey = item.tag?.[0]?.toLowerCase();
+  const iconKey = item.tag
   const itemDate = new Date(item.createdAt);
-  const hour = itemDate.getHours();
-  const minute = itemDate.getMinutes();
-  const formattedHour = String(hour).padStart(2, "0");
-  const formattedMinute = String(minute).padStart(2, "0");
-  const hourString = formattedHour + ":" + formattedMinute;
+  const hourString =
+    String(itemDate.getHours()).padStart(2, "0") +
+    ":" +
+    String(itemDate.getMinutes()).padStart(2, "0");
+
+  const isExpense = item.type === "expense";
 
   return (
-    <tr
-      onDoubleClick={() => setSelectedItem(item)}
-      className="flex border-b  hover:bg-gray-200 hover:border hover:border-(--Green-color) transition-colors"
-    >
-      {/* Cột 1: Transaction info */}
-      <td className={`flex items-center py-1 px-2 gap-2`}>
-        <div className="bg-red-100 rounded-full">
+    <div>
+      <button
+        type="button"
+        onClick={() => setSelectedItem(item)}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--Green-color)"
+      >
+        {/* Icon */}
+        <span
+          className={cn(
+            "flex size-10 shrink-0 items-center justify-center rounded-xl",
+            isExpense ? "bg-red-50" : "bg-green-50",
+          )}
+        >
           <TransactionsIcon type={iconKey} />
-        </div>
-      </td>
+        </span>
 
-      <td className={`flex items-center w-full py-1 px-2 gap-2 `}>
-        <div className="flex flex-col w-full">
-          <div className="flex justify-between w-full items-center">
-            <span className="font-bold text-xl">{item.title}</span>
-            <span
-              className={cn(
-                "flex items-center truncate px-2 font-semibold gap-1 text-center text-xl",
-                item.type === "expense" ? "text-red-500" : "text-green-400",
-              )}
-            >
-              {item.type === "expense" ? "- " : "+ "}
-              {Number(item.amount).toLocaleString("vi-VN")}{" "}
-              <span className="">VND</span>
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <div className="flex gap-1">
-              {item.tag?.map((tag, index) => (
-                <div key={index} className="flex justify-between">
-                  <div className="bg-blue-200 text-black rounded-xl px-1.5">
-                    #{tag}
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* Tên + tag */}
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="truncate text-base font-semibold text-gray-900">
+            {item.title}
+          </span>
+          <span className="flex flex-wrap gap-1">
+           
+              <span
+                
+                className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+              >
+                #{item.tag}
+              </span>
+           
+            {item.walletType && (
+              <span className="rounded-full border border-black/10 px-2 py-0.5 text-xs text-gray-600">
+                {item.walletType}
+              </span>
+            )}
+          </span>
+        </span>
+
+        {/* Số tiền + giờ */}
+        <span className="flex shrink-0 flex-col items-end gap-1">
+          <span
+            className={cn(
+              "whitespace-nowrap text-base font-semibold tabular-nums",
+              isExpense ? "text-red-600" : "text-green-600",
+            )}
+          >
+            {isExpense ? "- " : "+ "}
+            {Number(item.amount).toLocaleString("vi-VN")}
+            <span className="ml-1 text-xs font-medium text-gray-400">VND</span>
+          </span>
+          <span className="text-xs tabular-nums text-gray-500">
             {hourString}
-          </div>
-        </div>
-      </td>
-    </tr>
+          </span>
+        </span>
+      </button>
+    </div>
   );
 }
+
 export default TransactionItem;

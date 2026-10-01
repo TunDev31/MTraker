@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const SpendingSchema = new mongoose.Schema(
+export const transactionSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -29,7 +29,7 @@ export const SpendingSchema = new mongoose.Schema(
       enum: ["income", "expense"],
     },
     tag: {
-      type: [String],
+      type: String,
       required: true,
     },
 
@@ -48,5 +48,5 @@ export const SpendingSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-const Spending = mongoose.model("Spending", SpendingSchema);
-export default Spending;
+const Transaction = mongoose.model("Transaction", transactionSchema);
+export default Transaction;

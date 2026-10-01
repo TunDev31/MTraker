@@ -1,7 +1,7 @@
 import api from "@/lib/axios";
-export const getSpendings = () => api.get("/spending");
-export const createSpendings = (spending) => api.post(`/spending`, spending);
-export const updateSpendings = (transactionId, data) =>
-  api.put(`/spending/${transactionId}`, data);
-export const deleteSpendings = (transactionId) =>
-  api.delete(`/spending/${transactionId}`);
+export const getAllTransactions = () => api.get("/transactions");
+export const createTransaction = (transaction) => api.post(`/transactions`, transaction);
+export const updateTransaction = (transactionId, data) =>
+  api.put(`/transactions/${transactionId}`, data);
+export const deleteTransaction = (transactionId) =>
+  api.delete(`/transactions/${transactionId}`);

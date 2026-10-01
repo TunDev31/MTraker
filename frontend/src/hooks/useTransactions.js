@@ -17,21 +17,31 @@ export const useTransactions = ({
   selectedDateFilter,
   offset,
 }) => {
+  const walletName =
+    typeof selectedWallet === "object"
+      ? selectedWallet?.walletName
+      : selectedWallet;
+
   const TransFilter = useMemo(() => {
+    // THÊM: lọc theo ví trước, để mọi thống kê và danh sách đều theo ví đang chọn
+    const walletTrans =
+      walletName && Array.isArray(transactions)
+        ? transactions.filter((t) => t.walletType === walletName)
+        : transactions;
+
     const prevfilteredTrans = filterTransactionsByDate(
-      transactions,
+      walletTrans,
       selectedDateFilter,
       1,
     );
-    console.log("prevTrans"+prevfilteredTrans);
     const filteredTrans = filterTransactionsByDate(
-      transactions,
+      walletTrans,
       selectedDateFilter,
       0,
     );
-    console.log("filteredTrans"+filteredTrans);
+    // Danh sách theo kỳ đang xem (đổi theo offset khi bấm mũi tên)
     const filteredTransByDate = filterTransactionsByDate(
-      transactions,
+      walletTrans,
       selectedDateFilter,
       offset,
     );
@@ -40,18 +50,17 @@ export const useTransactions = ({
       filteredTrans,
       filteredTransByDate,
     };
-  }, [transactions, offset, selectedDateFilter]);
+  }, [transactions, walletName, offset, selectedDateFilter]);
 
   const transactionCalculation = useMemo(() => {
-    const walletName = typeof selectedWallet === "object" ? selectedWallet?.walletName : selectedWallet;
     const totalExpenseAllTime = getTotalExpense(transactions, walletName);
-    const totalIncomeAllTime =  getToltalIncome(transactions, walletName);
+    const totalIncomeAllTime = getToltalIncome(transactions, walletName);
     const prevExpenseValueByDate = getPrevTotalExpense(
       TransFilter.prevfilteredTrans,
     );
 
     const currentExpenseValueByDate = getCurrTotalExpense(
-      TransFilter.filteredTrans,
+      TransFilter.filteredTransByDate,
     );
 
     const expensePercentage = getExpensePercentage(
@@ -61,7 +70,7 @@ export const useTransactions = ({
 
     const isIncrease = expensePercentage > 0;
     const { type: mostExpensiveType, amount: mostExpensiveAmount } =
-      getMostExpensiveType(TransFilter.filteredTrans);
+      getMostExpensiveType(TransFilter.filteredTransByDate);
     const mostExpensePerDay =
       (mostExpensiveAmount / (currentExpenseValueByDate || 1)) * 100;
     const iconType = mostExpensiveType?.toLowerCase();
@@ -78,7 +87,7 @@ export const useTransactions = ({
       mostExpensiveType,
       mostExpensiveAmount,
     };
-  }, [transactions, selectedWallet, TransFilter]);
+  }, [transactions, walletName, TransFilter]);
 
   return {
     transactionCalculation,

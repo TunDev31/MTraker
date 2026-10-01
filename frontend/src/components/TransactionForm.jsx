@@ -5,6 +5,11 @@ import { Input } from "./ui/input";
 import { useWalletStore } from "@/stores/useWalletStore";
 import MyCombobox from "./ui/MyCombobox";
 
+import { useTransactionsStore } from "@/stores/useTransactionsStore";
+import { toast } from "sonner";
+import { useEffect } from "react";
+
+
 // 1. Định nghĩa Zod Schema
 const transactionSchema = z.object({
   title: z
@@ -17,10 +22,9 @@ const transactionSchema = z.object({
     .int("Số tiền phải là số nguyên!"),
   description: z.string().max(100, "Mô tả chỉ tối đa 100 ký tự!").optional(),
   tag: z
-    .array(z.string())
-    .min(1, "Vui lòng chọn ít nhất 1 tag!")
-    .max(3, "Chỉ có thể chọn tối đa 3 tag!"),
-  type: z.enum(["EXPENSE", "INCOME"], {
+    .string()
+    .min(1, "Vui lòng chọn ít nhất 1 tag!"),
+  type: z.enum(["expense", "income"], {
     errorMap: () => ({ message: "Loại giao dịch không hợp lệ!" }),
   }),
   walletType: z.string().min(1, "Bạn chưa chọn ví để thực hiện giao dịch!"),
@@ -30,35 +34,58 @@ const defaultFormValues = {
   title: "",
   amount: "",
   description: "",
-  tag: [],
-  type: "EXPENSE",
+  tag: "",
+  type: "expense",
   walletType: "",
 };
 
-const TransactionForm = ({ setTransactions, setIsOpenForm }) => {
+const TAG_OPTIONS = [
+  { label: "ĂN UỐNG", value: "food" },
+  { label: "ĐI LẠI", value: "travel" },
+  { label: "GIẢI TRÍ", value: "entertainment" },
+  { label: "MUA SẮM", value: "shopping" },
+  { label: "KHÁC", value: "khac" },
+];
+const TransactionForm = ({ setIsOpenForm }) => {
   // 2. Lấy danh sách ví từ Zustand Store
   const getWalletOptions = useWalletStore((state) => state.getWalletOptions);
   const options = getWalletOptions ? getWalletOptions() : [];
 
+  const createTransaction = useTransactionsStore((state) => state.createTransaction);
+
   // 3. Khởi tạo useForm
   const {
-    register,
-    handleSubmit,
-    control,
+   register,
+  handleSubmit,
+  control,
+  watch,
+  setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(transactionSchema),
     defaultValues: defaultFormValues,
   });
+const type = watch("type");
 
-  const onSubmit = (data) => {
-    console.log("Dữ liệu submit:", data);
-    if (setTransactions) {
-      setTransactions((prev) => [...prev, data]);
+// Chi tiêu: hiện mọi tag trừ "khac". Thu nhập: chỉ hiện "khac"
+const visibleTags = TAG_OPTIONS.filter((t) =>
+  type === "income" ? t.value === "khac" : t.value !== "khac",
+);
+  const onSubmit = async (data) => {
+    try {
+      const success = await createTransaction(data);
+      if (success) {
+        toast("Thêm giao dịch thành công!");
+        setIsOpenForm(false);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo giao dịch:", error);
+      toast("Thêm giao dịch thất bại!");
     }
-    setIsOpenForm(false);
   };
-
+useEffect(() => {
+  setValue("tag", type === "income" ? "khac" : "");
+}, [type, setValue]);
   return (
     <div
       className="fixed inset-0 z-50 w-full h-full bg-black/60 backdrop-blur-sm p-4 flex items-center justify-center"
@@ -112,7 +139,7 @@ const TransactionForm = ({ setTransactions, setIsOpenForm }) => {
               <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-[:checked]:border-[#ccff00] has-[:checked]:bg-[#ccff00]/10 cursor-pointer transition-all">
                 <input
                   type="radio"
-                  value="EXPENSE"
+                  value="expense"
                   className="accent-[#ccff00] w-4 h-4"
                   {...register("type")}
                 />
@@ -122,7 +149,7 @@ const TransactionForm = ({ setTransactions, setIsOpenForm }) => {
               <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-[:checked]:border-[#ccff00] has-[:checked]:bg-[#ccff00]/10 cursor-pointer transition-all">
                 <input
                   type="radio"
-                  value="INCOME"
+                  value="income"
                   className="accent-[#ccff00] w-4 h-4"
                   {...register("type")}
                 />
@@ -172,17 +199,13 @@ const TransactionForm = ({ setTransactions, setIsOpenForm }) => {
               Tags
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {[
-                { label: "ĂN UỐNG", value: "food" },
-                { label: "ĐI LẠI", value: "travel" },
-                { label: "GIẢI TRÍ", value: "entertainment" },
-              ].map((tagItem) => (
+              {visibleTags.map((tagItem) => (
                 <label
                   key={tagItem.value}
                   className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#2a2b30] border border-transparent has-[:checked]:border-[#ccff00] has-[:checked]:bg-[#ccff00]/10 cursor-pointer transition-all"
                 >
                   <input
-                    type="checkbox"
+                    type="radio"
                     value={tagItem.value}
                     className="accent-[#ccff00] w-4 h-4"
                     {...register("tag")}
@@ -219,6 +242,7 @@ const TransactionForm = ({ setTransactions, setIsOpenForm }) => {
           </button>
         </form>
       </div>
+     
     </div>
   );
 };

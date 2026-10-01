@@ -17,6 +17,7 @@ export const createNewWallet = async (req,res)=> {
         const wallet = new Wallet({
             userId,
             walletName,
+          
             remainAmount
         });
         const newWallet = await wallet.save();
@@ -24,5 +25,22 @@ export const createNewWallet = async (req,res)=> {
     } catch (error) {
         console.error("Loi khi newWallet!");
         return res.status(501).json({message: "Loi he thong"});
+    }
+}
+export const updateWallet = async (req, res) => {
+    try {
+        const { walletName } = req.params;
+        const userId = req.user._id;
+        const { amount } = req.body;
+        const wallet = await Wallet.findOne({ walletName, userId });
+        if (!wallet) {
+            return res.status(404).json({ message: "Wallet not found" });
+        }
+        wallet.remainAmount += amount;
+        const updatedWallet = await wallet.save();
+        res.status(200).json(updatedWallet);
+    } catch (error) {
+        console.error("Loi khi updateWallet!");
+        return res.status(501).json({ message: "Loi he thong" });
     }
 }

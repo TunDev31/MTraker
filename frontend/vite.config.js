@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     host: true,
-    allowedHosts: true // Cho phép tất cả các domain như ngrok truy cập
+    allowedHosts: true,
+     // Cho phép tất cả các domain như ngrok truy cập
   },
   resolve: {
     alias: {
