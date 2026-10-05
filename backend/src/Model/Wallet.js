@@ -12,7 +12,6 @@ const walletSchema = new mongoose.Schema({
     required: true,
     trim: true,
     unique: true,
-    lowercase: true,
   },
   remainAmount: {
     type: Number,

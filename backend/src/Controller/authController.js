@@ -5,6 +5,7 @@ import crypto from "crypto"
 import Session from "../Model/Session.js";
 const ACCESS_TOKEN_TTL = '30m';
 const REFRESH_TOKEN_TTL = 14*24*60* 60*1000;
+const isProd = process.env.NODE_ENV === "production";
 export const signUp = async (req,res)=> {
 
 
@@ -54,8 +55,8 @@ export const signIn = async (req,res) => {
         });
     res.cookie('refreshToken',refreshToken,{
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
+        secure: isProd,
+       sameSite: isProd ? 'none' : 'lax',
         maxAge: REFRESH_TOKEN_TTL
     });
     return res.status(200).json({message: `User ${user.displayedName} Log In thanh cong!`,accessToken});
@@ -88,5 +89,6 @@ export const refreshToken = async (req, res) => {
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: '30m' }
   );
-  return res.status(200).json({ accessToken: newAccessToken });
+  const user = await User.findById(session.userId).select("-hashedPassword");
+  return res.status(200).json({ accessToken: newAccessToken ,user});
 };

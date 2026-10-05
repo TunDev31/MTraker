@@ -35,7 +35,7 @@ export default function MyCombobox({
         role="combobox"
         aria-expanded={open}
         className={cn(
-          "flex w-fit items-center justify-between rounded-xl px-2 py-1.5 text-sm font-normal bg-[#2a2b30] border border-white text-white hover:bg-[#323339] transition-colors cursor-pointer outline-none",
+          "flex w-fit items-center justify-between rounded-xl px-2 py-1.5 text-sm font-normal hover:bg-[#323339] transition-colors cursor-pointer outline-none",
           !value && "text-gray-500",
           className
         )}
@@ -59,8 +59,8 @@ export default function MyCombobox({
                 <CommandItem
                   key={item.value}
                   value={item.value}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue);
+                  onSelect={() => {
+                    onChange(item.value === value ? "" : item.value);
                     setOpen(false);
                   }}
                   className="text-gray-200 hover:bg-[#3a3b42] hover:text-white cursor-pointer py-2 px-3 my-0.5 rounded-lg flex items-center justify-between"

@@ -55,13 +55,10 @@ app.use("/api/users", protectedRoute, userRoutes);
 app.use("/api/transactions", protectedRoute, transactionsRoute);
 app.use("/api/wallets", protectedRoute, walletRoute);
 
-app.use("/api", (req, res) => res.status(404).json({ message: "API not found" }));
-
-// Phục vụ frontend tĩnh khi ở môi trường production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(frontendDistPath));
 
-  // Express 5 wildcard route
+
   app.get("{*path}", (req, res) => {
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });

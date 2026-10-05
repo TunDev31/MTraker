@@ -27,7 +27,8 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // Nếu 401 VÀ chưa retry (tránh vòng lặp vô tận)
-    if (error.response?.status === 401 && !originalRequest._isRetry) {
+    if (error.response?.status === 401 && !originalRequest._isRetry &&
+  !originalRequest.url.includes("/auth/")) {
       originalRequest._isRetry = true;
       try {
         // Gọi refresh token — cookie refreshToken tự động đính kèm
@@ -51,4 +52,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default api;

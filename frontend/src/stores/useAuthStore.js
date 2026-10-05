@@ -2,16 +2,30 @@ import { create } from "zustand";
 import { toast } from "sonner";
 
 import { authService } from "@/services/authServices";
-import { setTokenGetter, setTokenSetter } from "@/lib/axios";
+import api, { setTokenGetter, setTokenSetter } from "@/lib/axios";
 
 
 export const userStore = create((set, get) => ({
   accessToken: null,
   user: null,
-  loading: false,
+  loading: true,
   clearState: () => {
     set({ accessToken: null, user: null, loading: false });
   },
+  initAuth: async () => {
+ 
+  try {
+    const res = await api.post("/auth/refreshtoken");
+    set({ accessToken: res.data.accessToken });
+    await get().fetchMe();          // lấy user, fetchMe tự tắt loading
+  } catch {
+    get().clearState();             // clearState tắt loading
+  }
+  finally {
+    // Đảm bảo loading luôn được tắt dù fetchMe có throw bất ngờ
+    set({ loading: false });
+  }
+},
   signUp: async (userName, password, email, firstName, lastName) => {
     try {
       set({ loading: true });
@@ -72,4 +86,5 @@ export const userStore = create((set, get) => ({
 // Đăng ký getter/setter để axios interceptor tự động lấy và lưu accessToken
 setTokenGetter(() => userStore.getState().accessToken);
 setTokenSetter((token) => userStore.setState({ accessToken: token }));
+
 

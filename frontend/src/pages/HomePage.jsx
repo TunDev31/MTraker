@@ -22,16 +22,17 @@ function HomePage() {
   const [selectedDateFilter, setSelectedDateFilter] = useState("day");
   const [isOpenForm, setIsOpenForm] = useState(false);
   const [offset, setOffSet] = useState(0);
-
   const fetchWallet = useWalletStore((state) => state.fetchWallets);
-  const selectedWallet = useWalletStore((state) => state.selectedWallet);
+  
  
   const fetchTransactions = useTransactionsStore((state) => state.fetchTransactions);
-
-  useEffect(() => {
-    fetchTransactions();
+useEffect(() => {
     fetchWallet();
+    fetchTransactions();
   }, []);
+  
+
+ 
 
 
 

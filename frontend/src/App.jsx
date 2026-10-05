@@ -4,7 +4,15 @@ import {  Toaster } from "sonner";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useEffect } from "react";
+import { userStore } from "./stores/useAuthStore";
+
 function App() {
+  
+  useEffect(() => {
+   
+    userStore.getState().initAuth();
+  }, []);
   return (
     <>
     <Toaster

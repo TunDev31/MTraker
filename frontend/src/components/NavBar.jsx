@@ -11,10 +11,10 @@ const NavBar = ({ setIsOpenForm }) => {
           onClick={() => setIsOpenForm(true)}
           className="inline-flex flex-col items-center justify-center font-medium px-5 hover:bg-gray-50 text-gray-700 transition-colors"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--Green-color,#22c55e)] text-white shadow-md">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00652C] text-white shadow-md">
             <Plus className="h-5 w-5" />
           </div>
-          <span className="text-xs mt-1 text-gray-600">Thêm thu chi</span>
+          <span className="text-xs mt-1 text-[#0F172A]">Thêm thu chi</span>
         </button>
 
         {/* Nút 2: Thêm Ví */}
