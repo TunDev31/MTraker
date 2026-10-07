@@ -12,7 +12,7 @@ const CardLayout = ({ selectedDateFilter, offSet = 0 }) => {
 
   // Hook đã lọc theo ví + kỳ (theo offset)
   const { TransFilter } = useTransactions({
-    selectedWallet: walletName,
+    selectedWallet: "",
     transactions,
     selectedDateFilter,
     offset: offSet,

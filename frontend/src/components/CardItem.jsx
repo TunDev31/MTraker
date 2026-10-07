@@ -34,15 +34,15 @@ const CardItem = ({ tag, total, percent }) => {
         <span
           className={cn(
             "flex size-9 items-center justify-center rounded-xl",
-            tone.icon,
+        
           )}
         >
-          <TransactionsIcon type={tag} />
+          <TransactionsIcon type={tag}  custom="rounded-full p-2"/>
         </span>
         <span
           className={cn(
             "rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums",
-            tone.chip,
+        
           )}
         >
           {percent}%

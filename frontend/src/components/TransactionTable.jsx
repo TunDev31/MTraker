@@ -15,7 +15,7 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
   const walletName = selectedWallet?.walletName || "";
   // Hook lọc theo ví + kỳ; offset đổi mỗi lần bấm mũi tên
   const { TransFilter } = useTransactions({
-    selectedWallet: walletName,
+    selectedWallet: "",
     transactions,
     selectedDateFilter,
     offset: offSet,

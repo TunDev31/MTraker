@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 import TransactionsIcon from "./TransactionsIcon";
+import { ICON_CLASS, ICON_TEXTCOLOR } from "@/utils/SpendingUtils/TransactionsIconUtils";
+import { Banknote, Landmark } from "lucide-react";
 
 function TransactionItem({ item, setSelectedItem }) {
   const iconKey = item.tag
@@ -19,14 +21,7 @@ function TransactionItem({ item, setSelectedItem }) {
         className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--Green-color)"
       >
         {/* Icon */}
-        <span
-          className={cn(
-            "flex size-10 shrink-0 items-center justify-center rounded-xl",
-            isExpense ? "bg-red-50" : "bg-green-50",
-          )}
-        >
-          <TransactionsIcon type={iconKey} />
-        </span>
+        
 
         {/* Tên + tag */}
         <span className="flex min-w-0 flex-1 flex-col gap-1">
@@ -35,18 +30,15 @@ function TransactionItem({ item, setSelectedItem }) {
           </span>
           <span className="flex flex-wrap gap-1">
            
-              <span
-                
-                className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
-              >
-                #{item.tag}
-              </span>
+              <span className={cn(`inline-flex px-1 items-center gap-1 text-xs ${ICON_TEXTCOLOR[item.tag]} font-semibold rounded-lg `,ICON_CLASS[item.tag])}>
+                      
+                      #{item.tag}
+                    </span>
            
-            {item.walletType && (
-              <span className="rounded-full border border-black/10 px-2 py-0.5 text-xs text-gray-600">
-                {item.walletType}
-              </span>
-            )}
+            <span className="flex gap-1 justify-center items-center text-sm font-semibold text-gray-900">
+                    {item?.walletType ==="Tiền mặt" ? <Banknote color="green" /> : <Landmark />}
+                    {item?.walletType || "Không xác định"}
+                  </span>
           </span>
         </span>
 

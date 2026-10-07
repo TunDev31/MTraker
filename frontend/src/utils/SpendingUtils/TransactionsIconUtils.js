@@ -9,10 +9,26 @@ export const ICON_MAP = {
     khac: Ban
   };
 export const ICON_CLASS = {
-    food: 'p-2 bg-yellow-200 rounded-full',
-    travel: 'p-2 bg-blue-200 rounded-full',
-    entertainment: 'p-2 bg-purple-200 rounded-full',
-    shopping: 'p-2 bg-green-200 rounded-full',
-    khac: 'p-2 bg-gray-200 rounded-full',
+    food: ' bg-yellow-200 ',
+    travel: ' bg-blue-200 ',
+    entertainment: ' bg-purple-200 ',
+    shopping: 'bg-orange-600 ',
+    khac: 'bg-gray-200 ',
     none: ''
   };
+export const ICON_COLOR = {
+  food: 'brown',
+    travel: 'blue',
+    entertainment: 'purple',
+    shopping: 'white',
+    khac: 'white',
+    none: ''
+}
+export const ICON_TEXTCOLOR = {
+  food: 'text-orange-900',
+    travel: 'text-blue-900',
+    entertainment: 'text-purple-900',
+    shopping: 'text-white',
+    khac: 'white',
+    none: ''
+}

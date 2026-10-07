@@ -1,19 +1,19 @@
+import { cn } from "@/lib/utils";
 import { userStore } from "@/stores/useAuthStore";
-import { Bell, CircleDollarSign, CircleUserRound, SquareArrowRightExit } from "lucide-react";
+import {  CircleDollarSign } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 
-const Header = () => {
+const Header = ({ setSelectedDateFilter }) => {
    const today = new Date();
-  const {signOut} = userStore();
-  const navigate = useNavigate();
-  const handleLogOut = async ()=> {
-      try {
-        await signOut();
-        navigate("/signin");
-      } catch (error) {
-        console.error("Loi khi dang xuat!");
-      }
-  }
+ 
+
+  const [selectedValue, setSelectedValue] = useState("day");
+  const handleChange = (value) => {
+    if (!value) return;
+    setSelectedValue(value);
+    setSelectedDateFilter(value);
+  };
   const formattedDate = today.toLocaleDateString("vi-VN", {
     day: "numeric",
     month: "long",
@@ -41,9 +41,17 @@ const Header = () => {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-950"></span>
         </button> */}
         {/* <CircleUserRound color="black" className="w-7 h-7" /> */}
-        <button onClick={handleLogOut}>
-          <SquareArrowRightExit />
-        </button>
+        <div className="flex items-center bg-[#E5EEFF] rounded-xl p-1 gap-1" >
+          <button className={cn(" px-2 py-1 rounded-sm", selectedValue === "day" && "bg-white text-green-700")} type="button" onClick={() => handleChange("day")}>
+            Ngày
+          </button>
+          <button className={cn(" px-2 py-1 rounded-sm", selectedValue === "month" && "bg-white text-green-700")} type="button" onClick={() => handleChange("month")}>
+            Tháng
+          </button>
+          <button className={cn(" px-2 py-1 rounded-sm", selectedValue === "year" && "bg-white text-green-700")} type="button" onClick={() => handleChange("year")}>
+            Năm
+          </button>
+        </div>
       </div>
     </header>
   );

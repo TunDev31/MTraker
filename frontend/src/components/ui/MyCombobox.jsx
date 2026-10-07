@@ -35,7 +35,7 @@ export default function MyCombobox({
         role="combobox"
         aria-expanded={open}
         className={cn(
-          "flex w-fit items-center justify-between rounded-xl px-2 py-1.5 text-sm font-normal hover:bg-[#323339] transition-colors cursor-pointer outline-none",
+          "flex w-fit items-center justify-between rounded-xl px-2 py-1.5 text-sm font-normal border border-black transition-colors cursor-pointer",
           !value && "text-gray-500",
           className
         )}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { BanknoteArrowDown, BanknoteArrowUp, X } from "lucide-react";
 import { z } from "zod";
 import { useWalletStore } from "@/stores/useWalletStore";
@@ -6,22 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 
 import MyCombobox from "./ui/MyCombobox";
+import { cn } from "@/lib/utils";
 
 
 // 1. Cập nhật Schema đồng bộ với tất cả các input trong Form
-const walletTransferSchema = z.object({
-  type: z.enum(["withdraw", "deposit"], {
-    message: "Vui lòng chọn loại giao dịch!",
-  }),
-  walletName: z
-    .string()
-    .min(1, "Bạn chưa chọn hoặc nhập tên ví!")
-    .max(20, "Tên ví tối đa chỉ 20 kí tự!"),
-  amount: z.coerce
-    .number({ invalid_type_error: "Vui lòng nhập số!" })
-    .positive("Số tiền phải lớn hơn 0!")
-    .int("Số tiền phải là số nguyên!"),
-});
+
 
 const defaultFormValues = {
   walletName: "",
@@ -33,6 +22,48 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
   const getWalletOptions = useWalletStore((state) => state.getWalletOptions);
   const updateWallet = useWalletStore((state) => state.updateWallet);
   const options = getWalletOptions ? getWalletOptions() : [];
+  const wallets = useWalletStore((state) => state.wallets);
+
+const schema = useMemo(
+  () =>
+    z
+      .object({
+        type: z.enum(["withdraw", "deposit"], {
+          message: "Vui lòng chọn loại giao dịch!",
+        }),
+        walletName: z
+          .string()
+          .min(1, "Bạn chưa chọn hoặc nhập tên ví!")
+          .max(20, "Tên ví tối đa chỉ 20 kí tự!"),
+        amount: z.coerce
+          .number({ message: "Vui lòng nhập số!" })
+          .positive("Số tiền phải lớn hơn 0!")
+          .int("Số tiền phải là số nguyên!"),
+      })
+      .superRefine((data, ctx) => {
+        if (data.type !== "withdraw") return;
+
+        const wallet = wallets.find((w) => w.walletName === data.walletName);
+
+        if (!wallet) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["walletName"],
+            message: "Ví không tồn tại, không thể rút tiền!",
+          });
+          return;
+        }
+
+        if (data.amount > wallet.remainAmount) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["amount"],
+            message: `Số dư không đủ! Ví hiện có ${wallet.remainAmount.toLocaleString("vi-VN")}đ`,
+          });
+        }
+      }),
+  [wallets]
+);
 
   const {
     register,
@@ -42,14 +73,15 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
    watch,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(walletTransferSchema),
+    resolver: zodResolver(schema),
     defaultValues: defaultFormValues,
+     mode: "onSubmit",
+  reValidateMode: "onSubmit",
   });
  const add = (n) => {
     const current = Number(watch("amount")) || 0;
     setValue("amount", current + n, {
       shouldDirty: true,
-      shouldValidate: true,
     });
   };
   const onSubmit = async (data) => {
@@ -163,7 +195,10 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
               type="number"
               placeholder="0"
               {...register("amount")}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-[#EFF4FF] focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              className={cn(
+                "w-full rounded-lg border border-gray-300  px-3 py-2 text-sm text-gray-700 placeholder-gray-400 ",
+                errors.amount ? " bg-red-200 text-red-600 border-red-200" : "bg-[#EFF4FF]"
+              )}
             />
             {errors.amount && (
               <div className="mt-1.5 rounded-lg bg-red-50 p-2 text-xs text-red-600">
