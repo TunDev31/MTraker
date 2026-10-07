@@ -66,7 +66,7 @@ export const getTotalExpense = (transactions, selectedWallet) => {
   return transactions
     .filter(
       (trans) =>
-        trans.type === "expense" && trans.walletType === selectedWallet,
+        trans.type === "expense" && trans.walletType === selectedWallet && trans.tag!=="transfer",
     )
     .reduce((total, trans) => {
       return total + trans.amount;
@@ -76,7 +76,7 @@ export const getToltalIncome = (transactions, selectedWallet) => {
   if (!Array.isArray(transactions) || transactions.length === 0) return 0;
   return transactions
     .filter(
-      (trans) => trans.type === "income" && trans.walletType === selectedWallet,
+      (trans) => trans.type === "income" && trans.walletType === selectedWallet && trans.tag!=="transfer",
     )
     .reduce((total, trans) => {
       return total + trans.amount;
@@ -88,7 +88,7 @@ export const getCardValue = (transactions) => {
   if (!Array.isArray(transactions) || transactions.length === 0) return [];
 
   const byTag = transactions
-    .filter((t) => t.type === "expense")
+    .filter((t) => t.type === "expense" && t.tag !=="transfer")
     .reduce((acc, t) => {
       const tag = t.tag|| "khac";
       acc[tag] ??= { tag, total: 0 };

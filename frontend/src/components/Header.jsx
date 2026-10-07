@@ -4,7 +4,7 @@ import {  CircleDollarSign } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 
-const Header = ({ setSelectedDateFilter }) => {
+const Header = ({ setSelectedDateFilter,setOffset }) => {
    const today = new Date();
  
 
@@ -13,6 +13,7 @@ const Header = ({ setSelectedDateFilter }) => {
     if (!value) return;
     setSelectedValue(value);
     setSelectedDateFilter(value);
+    setOffset(0);
   };
   const formattedDate = today.toLocaleDateString("vi-VN", {
     day: "numeric",

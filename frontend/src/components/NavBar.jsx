@@ -23,12 +23,12 @@ const NavBar = ({ setIsOpenForm }) => {
         </button>
 
         {/* Cột phải: Cá nhân */}
-        <button
+        {/* <button
           type="button"
           className="justify-self-center px-3 py-1 text-sm font-medium text-[#0F172A] transition-colors hover:bg-gray-50"
         >
           Cá nhân
-        </button>
+        </button> */}
       </div>
     </nav>
   );

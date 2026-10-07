@@ -26,7 +26,7 @@ export const useTransactions = ({
     // THÊM: lọc theo ví trước, để mọi thống kê và danh sách đều theo ví đang chọn
     const walletTrans =
       walletName && Array.isArray(transactions)
-        ? transactions.filter((t) => t.walletType === walletName)
+        ? transactions.filter((t) => t.walletType === walletName && t.tag !=="transfer")
         : transactions;
 
     const prevfilteredTrans = filterTransactionsByDate(

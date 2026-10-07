@@ -31,7 +31,7 @@ function HomePage() {
   return (
     <div className="min-h-dvh flex flex-col gap-1 px-1 py-1 sm:py-3 sm:px-3 sm:gap-2 bg-(--bg-primary)">
       <Header 
-          setSelectedDateFilter={setSelectedDateFilter}/>
+          setSelectedDateFilter={setSelectedDateFilter} setOffset={setOffSet}/>
       <main className="flex-1 flex flex-col gap-3 overflow-y-auto">
         
         <MoneyManager setWalletForm={setWalletForm} />

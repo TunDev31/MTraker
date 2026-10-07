@@ -1,4 +1,4 @@
-import { Ban, Film, ShoppingCart, Utensils, Van } from "lucide-react";
+import { Ban, Banknote, Film, ShoppingCart, Utensils, Van } from "lucide-react";
 
 export const ICON_MAP = {
     food: Utensils ,
@@ -6,7 +6,7 @@ export const ICON_MAP = {
     entertainment: Film,
     none: Ban,
     shopping: ShoppingCart ,
-    khac: Ban
+    transfer: Banknote
   };
 export const ICON_CLASS = {
     food: ' bg-yellow-200 ',
@@ -14,7 +14,7 @@ export const ICON_CLASS = {
     entertainment: ' bg-purple-200 ',
     shopping: 'bg-orange-600 ',
     khac: 'bg-gray-200 ',
-    none: ''
+    transfer: 'bg-green-200'
   };
 export const ICON_COLOR = {
   food: 'brown',
@@ -22,7 +22,7 @@ export const ICON_COLOR = {
     entertainment: 'purple',
     shopping: 'white',
     khac: 'white',
-    none: ''
+    transfer: 'white'
 }
 export const ICON_TEXTCOLOR = {
   food: 'text-orange-900',
@@ -30,5 +30,6 @@ export const ICON_TEXTCOLOR = {
     entertainment: 'text-purple-900',
     shopping: 'text-white',
     khac: 'white',
-    none: ''
+    none: '',
+    transfer: 'white'
 }

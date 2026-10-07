@@ -7,10 +7,9 @@ import { useForm, Controller } from "react-hook-form";
 
 import MyCombobox from "./ui/MyCombobox";
 import { cn } from "@/lib/utils";
-
+import { useTransactionsStore } from "@/stores/useTransactionsStore";
 
 // 1. Cập nhật Schema đồng bộ với tất cả các input trong Form
-
 
 const defaultFormValues = {
   walletName: "",
@@ -21,64 +20,65 @@ const defaultFormValues = {
 const WalletTransferForm = ({ setWalletTransferForm }) => {
   const getWalletOptions = useWalletStore((state) => state.getWalletOptions);
   const updateWallet = useWalletStore((state) => state.updateWallet);
+  const createTransaction = useTransactionsStore((state)=>state.createTransaction);
   const options = getWalletOptions ? getWalletOptions() : [];
   const wallets = useWalletStore((state) => state.wallets);
 
-const schema = useMemo(
-  () =>
-    z
-      .object({
-        type: z.enum(["withdraw", "deposit"], {
-          message: "Vui lòng chọn loại giao dịch!",
+  const schema = useMemo(
+    () =>
+      z
+        .object({
+          type: z.enum(["withdraw", "deposit"], {
+            message: "Vui lòng chọn loại giao dịch!",
+          }),
+          walletName: z
+            .string()
+            .min(1, "Bạn chưa chọn hoặc nhập tên ví!")
+            .max(20, "Tên ví tối đa chỉ 20 kí tự!"),
+          amount: z.coerce
+            .number({ message: "Vui lòng nhập số!" })
+            .positive("Số tiền phải lớn hơn 0!")
+            .int("Số tiền phải là số nguyên!"),
+        })
+        .superRefine((data, ctx) => {
+          if (data.type !== "withdraw") return;
+
+          const wallet = wallets.find((w) => w.walletName === data.walletName);
+
+          if (!wallet) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["walletName"],
+              message: "Ví không tồn tại, không thể rút tiền!",
+            });
+            return;
+          }
+
+          if (data.amount > wallet.remainAmount) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["amount"],
+              message: `Số dư không đủ! Ví hiện có ${wallet.remainAmount.toLocaleString("vi-VN")}đ`,
+            });
+          }
         }),
-        walletName: z
-          .string()
-          .min(1, "Bạn chưa chọn hoặc nhập tên ví!")
-          .max(20, "Tên ví tối đa chỉ 20 kí tự!"),
-        amount: z.coerce
-          .number({ message: "Vui lòng nhập số!" })
-          .positive("Số tiền phải lớn hơn 0!")
-          .int("Số tiền phải là số nguyên!"),
-      })
-      .superRefine((data, ctx) => {
-        if (data.type !== "withdraw") return;
-
-        const wallet = wallets.find((w) => w.walletName === data.walletName);
-
-        if (!wallet) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["walletName"],
-            message: "Ví không tồn tại, không thể rút tiền!",
-          });
-          return;
-        }
-
-        if (data.amount > wallet.remainAmount) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["amount"],
-            message: `Số dư không đủ! Ví hiện có ${wallet.remainAmount.toLocaleString("vi-VN")}đ`,
-          });
-        }
-      }),
-  [wallets]
-);
+    [wallets],
+  );
 
   const {
     register,
     handleSubmit,
-    control, 
+    control,
     setValue,
-   watch,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: defaultFormValues,
-     mode: "onSubmit",
-  reValidateMode: "onSubmit",
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
   });
- const add = (n) => {
+  const add = (n) => {
     const current = Number(watch("amount")) || 0;
     setValue("amount", current + n, {
       shouldDirty: true,
@@ -88,6 +88,15 @@ const schema = useMemo(
     try {
       // 3. Đúng tên trường dữ liệu từ form
       await updateWallet(data.walletName, data.amount, data.type); // Refresh danh sách ví
+      const transDate = {
+        title: (data.type==='withdraw') ? "Rút tiền": "Nạp tiền",
+        amount: data.amount,
+        description: "",
+        tag: "transfer",
+        type: (data.type==='withdraw') ? "expense": "income",
+        walletType:data.walletName,
+      };
+      await createTransaction(transDate);
       setWalletTransferForm(false); // Đóng modal
     } catch (error) {
       console.error("Error updating wallet:", error);
@@ -132,7 +141,7 @@ const schema = useMemo(
                    peer-checked:border-white peer-checked:bg-white peer-checked:text-green-600
                    peer-focus-visible:ring-2 peer-focus-visible:ring-white peer-focus-visible:ring-offset-2"
                 >
-                   <BanknoteArrowUp />
+                  <BanknoteArrowUp />
                   Nạp tiền
                 </div>
               </label>
@@ -146,11 +155,11 @@ const schema = useMemo(
                   className="peer sr-only"
                 />
                 <div
-                   className="flex items-center justify-center gap-2 rounded-xl bg-[#EFF4FF] py-2.5 text-center text-sm font-semibold text-[#0F172A] transition
+                  className="flex items-center justify-center gap-2 rounded-xl bg-[#EFF4FF] py-2.5 text-center text-sm font-semibold text-[#0F172A] transition
                    peer-checked:border-white peer-checked:bg-white peer-checked:text-red-600
                    peer-focus-visible:ring-2 peer-focus-visible:ring-white peer-focus-visible:ring-offset-2"
                 >
-                 <BanknoteArrowDown />
+                  <BanknoteArrowDown />
                   Rút tiền
                 </div>
               </label>
@@ -175,7 +184,7 @@ const schema = useMemo(
                   onChange={field.onChange}
                   data={options}
                   placeholder="Chọn ví thực hiện giao dịch..."
-                  className='bg-[#EFF4FF] text-gray-700 w-full p-4'
+                  className="bg-[#EFF4FF] text-gray-700 w-full p-4"
                 />
               )}
             />
@@ -197,7 +206,9 @@ const schema = useMemo(
               {...register("amount")}
               className={cn(
                 "w-full rounded-lg border border-gray-300  px-3 py-2 text-sm text-gray-700 placeholder-gray-400 ",
-                errors.amount ? " bg-red-200 text-red-600 border-red-200" : "bg-[#EFF4FF]"
+                errors.amount
+                  ? " bg-red-200 text-red-600 border-red-200"
+                  : "bg-[#EFF4FF]",
               )}
             />
             {errors.amount && (
@@ -208,11 +219,29 @@ const schema = useMemo(
           </div>
 
           {/* Số dư ban đầu */}
-            <div className="grid grid-cols-3 gap-2">
-              <button type="button" className="bg-[#EFF4FF] p-2 rounded-xl" onClick={() => add(10000)}>+10,000</button>
-              <button type="button" className="bg-[#EFF4FF] p-2 rounded-xl" onClick={() => add(50000)}>+50,000</button>
-              <button type="button" className="bg-[#EFF4FF] p-2 rounded-xl" onClick={() => add(100000)}>+100,000</button>
-            </div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              className="bg-[#EFF4FF] p-2 rounded-xl"
+              onClick={() => add(10000)}
+            >
+              +10,000
+            </button>
+            <button
+              type="button"
+              className="bg-[#EFF4FF] p-2 rounded-xl"
+              onClick={() => add(50000)}
+            >
+              +50,000
+            </button>
+            <button
+              type="button"
+              className="bg-[#EFF4FF] p-2 rounded-xl"
+              onClick={() => add(100000)}
+            >
+              +100,000
+            </button>
+          </div>
           {/* Nút bấm hành động */}
           <div className="flex justify-between gap-3 pt-2">
             <button
