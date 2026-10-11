@@ -3,13 +3,30 @@ import {
   updateTransaction as updateTransactionApi,
   deleteTransaction as deleteTransactionApi,
   createTransaction as createTransactionApi,
+  getTransAnalyze,
 } from "@/services/transactionsServices.js";
 import { create } from "zustand";
 
 export const useTransactionsStore = create((set, get) => ({
   transactions: [],
   loading: false,
-
+  report: null,
+  fetchTransAnalyze: async ()=> {
+    try {
+      set({loading:true});
+    
+      const report = await getTransAnalyze();
+      console.log(report);
+      set({report :report.data});
+      return true;
+    } catch (error)
+    {
+      console.error("Loi he thong");
+      return false;
+    } finally {
+      set({loading:false})
+    }
+  },
   fetchTransactions: async () => {
     try {
       set({ loading: true });
@@ -22,9 +39,9 @@ export const useTransactionsStore = create((set, get) => ({
       set({ loading: false });
     }
   },
-  createTransaction: async (data) => {
+  createTransaction: async (data,walletId) => {
     try {
-      const res = await createTransactionApi(data);
+      const res = await createTransactionApi(data, walletId);
       set({ transactions: [res.data, ...get().transactions] });
       return true;
     } catch (error) {

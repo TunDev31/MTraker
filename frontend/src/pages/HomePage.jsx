@@ -1,51 +1,56 @@
+// pages/HomePage.jsx
+import { useState } from "react";
 import Header from "../components/Header";
-import DateFilter from "../components/DateFilter";
-
-import Footer from "../components/Footer";
-import { useEffect, useState } from "react";
-import NavBar from "../components/NavBar";
-import TransactionForm from "../components/TransactionForm";
-
-import { useTransactionsStore } from "@/stores/useTransactionsStore";
-import { useWalletStore } from "@/stores/useWalletStore";
 import MoneyManager from "@/components/MoneyManager";
-
 import CardLayout from "@/components/CardLayout";
 import TransactionTable from "@/components/TransactionTable";
+import { useTransactionsStore } from "@/stores/useTransactionsStore";
+import { useWalletStore } from "@/stores/useWalletStore";
+import MoneyManagerSkeleton from "@/components/MoneyManagerSkeleton";
+import CardLayoutSkeleton from "@/components/CardLayoutSkeleton";
+import TransactionTableSkeleton from "@/components/TransactionTableSkeleton";
 
 function HomePage() {
   const [walletForm, setWalletForm] = useState(false);
   const [selectedDateFilter, setSelectedDateFilter] = useState("day");
-  const [isOpenForm, setIsOpenForm] = useState(false);
   const [offset, setOffSet] = useState(0);
-  const fetchWallet = useWalletStore((state) => state.fetchWallets);
 
-  const fetchTransactions = useTransactionsStore(
-    (state) => state.fetchTransactions,
-  );
-  useEffect(() => {
-    fetchWallet();
-    fetchTransactions();
-  }, []);
+  const loadingWallet = useWalletStore((s) => s.loading);
+  const loadingTrans = useTransactionsStore((s) => s.loading);
+  const isLoading = loadingWallet || loadingTrans;
 
   return (
-    <div className="min-h-dvh flex flex-col gap-1 px-1 py-1 sm:py-3 sm:px-3 sm:gap-2 bg-(--bg-primary)">
-      <Header 
-          setSelectedDateFilter={setSelectedDateFilter} setOffset={setOffSet}/>
+    <div className="flex-1 flex flex-col gap-1 px-1 py-1 sm:py-3 sm:px-3 sm:gap-2">
+      <Header
+        setSelectedDateFilter={setSelectedDateFilter}
+        setOffset={setOffSet}
+      />
       <main className="flex-1 flex flex-col gap-3 overflow-y-auto">
-        
-        <MoneyManager setWalletForm={setWalletForm} />
-        <CardLayout selectedDateFilter={selectedDateFilter} offSet={offset} />
+        {isLoading ? (
+          <MoneyManagerSkeleton />
+        ) : (
+          <MoneyManager
+            setWalletForm={setWalletForm}
+            selectedDateFilter={selectedDateFilter}
+          />
+        )}
 
-        <TransactionTable
-          selectedDateFilter={selectedDateFilter}
-          setOffSet={setOffSet}
-          offSet={offset}
-        />
-        <NavBar setIsOpenForm={setIsOpenForm} setWalletForm={setWalletForm} />
-        {isOpenForm && <TransactionForm setIsOpenForm={setIsOpenForm} />}
+        {isLoading ? (
+          <CardLayoutSkeleton />
+        ) : (
+          <CardLayout selectedDateFilter={selectedDateFilter} offSet={offset} />
+        )}
+
+        {isLoading ? (
+          <TransactionTableSkeleton rows={4} />
+        ) : (
+          <TransactionTable
+            selectedDateFilter={selectedDateFilter}
+            setOffSet={setOffSet}
+            offSet={offset}
+          />
+        )}
       </main>
-      <Footer />
     </div>
   );
 }

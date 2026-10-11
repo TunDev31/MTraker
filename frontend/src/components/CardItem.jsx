@@ -53,7 +53,7 @@ const CardItem = ({ tag, total, percent }) => {
       <div className="min-w-0">
         <p className="truncate text-sm text-gray-500">{meta.label}</p>
         <p className="truncate text-base font-bold tabular-nums text-gray-900">
-          {Number(total).toLocaleString("vi-VN")} đ
+          {Number(total).toLocaleString("vi-VN")} VND
         </p>
       </div>
 

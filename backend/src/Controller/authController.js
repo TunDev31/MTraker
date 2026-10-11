@@ -12,7 +12,7 @@ export const signUp = async (req,res)=> {
     try {
         const {userName, password,email,firstName, lastName,} = req.body;
         if (!userName || !password || !email|| !firstName || !lastName) {
-            return res.status(400).json({message:"Thong tin khong duoc de trong!"})
+            return res.status(400).json({message:"Thông tin đăng ký không được để trống!"});
         }
         const isDuplicatedUser = await  User.findOne({userName});
         if (isDuplicatedUser) {

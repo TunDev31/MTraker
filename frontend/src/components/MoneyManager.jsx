@@ -38,7 +38,7 @@ const MoneyManager = ({ selectedDateFilter, setWalletForm }) => {
     transactionCalculation.totalIncomeAllTime;
   const currWalletName = !selectedWallet ? "" : selectedWallet.walletName;
 
-  const wallets = Array.isArray(userWallet) ? userWallet : [];
+
 
   const walletOptions = useMemo(() => {
     if (!Array.isArray(userWallet)) return [];
@@ -64,9 +64,10 @@ const MoneyManager = ({ selectedDateFilter, setWalletForm }) => {
               placeholder="Loại Thẻ"
               searchPlaceholder="Tìm loại thẻ"
               emptyMessage="Không tìm thấy ví"
-              value={currWalletName}
+              value={selectedWallet?._id || ""}
               onChange={changeWallet}
               data={walletOptions}
+              className="border border-white"
             />
             <button
               type="button"

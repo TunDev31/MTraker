@@ -1,23 +1,45 @@
 import { walletService } from "@/services/walletService";
+
 import { create } from "zustand";
 
 export const useWalletStore = create((set, get) => ({
   wallets: [],
   loading: false,
   selectedWallet: null,
+  walletReport: null,
+  fetchReport: async ()=> {
+    try {
+      set({loading:true});
+     
+      if (!get().wallets) return;
+      const report = await walletService.fetchWalletReport();
+      if (!report) {
+        console.log("Loi khi tai report");
+        return false;
+      }
 
+      set({walletReport: report});
+        return true;
+    } catch (error) {
+      console.log("Loi he thong");
+      return false;
+    } finally {
+      set({loading: false});
+    }
+  },
   fetchWallets: async () => {
     set({ loading: true });
     try {
       const walletData = await walletService.fetchWallet();
+
       const data = walletData || [];
 
-      // 1. Lấy tên ví đang được chọn hiện tại
-      const currentSelectedName = get().selectedWallet?.walletName;
+      // 1. Lấy _id của ví đang được chọn hiện tại
+      const currentSelectedId = get().selectedWallet?._id;
 
       // 2. Tìm lại chính ví đó trong danh sách data MỚI vừa fetch về
       const updatedSelectedWallet =
-        data.find((w) => w.walletName === currentSelectedName) || data[0] || null;
+        data.find((w) => w._id === currentSelectedId) || data[0] || null;
 
       // 3. Cập nhật state với array mới VÀ selectedWallet mới
       set({
@@ -32,18 +54,18 @@ export const useWalletStore = create((set, get) => ({
     }
   },
 
-  updateWallet: async (walletName, amount, type) => {
-    await walletService.updateWallet(walletName, amount, type);
+  updateWallet: async (walletId, amount, type) => {
+    await walletService.updateWallet(walletId, amount, type);
     await get().fetchWallets(); 
   },
 
-  changeWallet: (walletName) => {
-    const walletNeedChange = get().wallets.find((w) => w.walletName === walletName);
+  changeWallet: (walletId) => {
+    const walletNeedChange = get().wallets.find((w) => w._id === walletId);
     set({ selectedWallet: walletNeedChange ? { ...walletNeedChange } : null });
   },
 
-  getBalanceById: (walletName) => {
-    const wallet = get().wallets.find((w) => w.walletName === walletName);
+  getBalanceById: (walletId) => {
+    const wallet = get().wallets.find((w) => w._id === walletId);
     return wallet ? wallet.remainAmount : 0;
   },
 
@@ -54,7 +76,7 @@ export const useWalletStore = create((set, get) => ({
   getWalletOptions: () => {
     return get().wallets?.map((wallet) => ({
       label: wallet.walletName,
-      value: wallet.walletName,
+      value: wallet._id,
     }));
   },
 }));

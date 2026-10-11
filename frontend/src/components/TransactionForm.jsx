@@ -25,7 +25,7 @@ const transactionSchema = z.object({
   type: z.enum(["expense", "income"], {
     errorMap: () => ({ message: "Loại giao dịch không hợp lệ!" }),
   }),
-  walletType: z.string().min(1, "Bạn chưa chọn ví để thực hiện giao dịch!"),
+  walletId: z.string().min(1, "Bạn chưa chọn ví để thực hiện giao dịch!"),
 });
 
 const defaultFormValues = {
@@ -34,7 +34,7 @@ const defaultFormValues = {
   description: "",
   tag: "",
   type: "expense",
-  walletType: "",
+  walletId: "",
 };
 
 const TAG_OPTIONS = [
@@ -73,7 +73,8 @@ const TransactionForm = ({ setIsOpenForm }) => {
   );
   const onSubmit = async (data) => {
     try {
-      const success = await createTransaction(data);
+      const { walletId, ...transactionData } = data;
+      const success = await createTransaction(transactionData, walletId);
       if (success) {
         toast("Thêm giao dịch thành công!");
         setIsOpenForm(false);
@@ -190,7 +191,7 @@ const TransactionForm = ({ setIsOpenForm }) => {
               Loại Ví
             </label>
             <Controller
-              name="walletType"
+              name="walletId"
               control={control}
               render={({ field }) => (
                 <MyCombobox
@@ -202,9 +203,9 @@ const TransactionForm = ({ setIsOpenForm }) => {
                 />
               )}
             />
-            {errors.walletType && (
+            {errors.walletId && (
               <p className="text-red-500 text-xs mt-1">
-                {errors.walletType.message}
+                {errors.walletId.message}
               </p>
             )}
           </div>

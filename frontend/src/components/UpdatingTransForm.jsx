@@ -38,7 +38,7 @@ export const TAG_CONFIG = {
 const UpdatingTransForm = ({ item, onCancel, onSaved }) => {
   const wallets = useWalletStore((state) => state.wallets);
   const walletOptions = useMemo(
-    () => wallets.map((w) => ({ label: w.walletName, value: w.walletName })),
+    () => wallets.map((w) => ({ label: w.walletName, value: w._id })),
     [wallets],
   );
 
@@ -50,7 +50,7 @@ const UpdatingTransForm = ({ item, onCancel, onSaved }) => {
   // nên hủy form đồng nghĩa với việc bỏ toàn bộ thay đổi (không cần reset thủ công).
   const [selectedType, setSelectedType] = useState(item?.type || "expense");
   const [selectedCashType, setSelectedCashType] = useState(
-    item?.walletType || "cash",
+    item?.walletid || "",
   );
   const [selectedTag, setSelectedTag] = useState(item?.tag || "");
   const [spendingName, setSpendingName] = useState(item?.title || "");
@@ -77,7 +77,7 @@ const UpdatingTransForm = ({ item, onCancel, onSaved }) => {
       const ok = await updateTransactions({
         ...item,
         type: selectedType,
-        walletType: selectedCashType,
+        walletid: selectedCashType,
         tag: selectedTag,
         title: spendingName.trim(),
         amount: Number(spendingAmount),

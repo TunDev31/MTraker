@@ -17,16 +17,16 @@ export const useTransactions = ({
   selectedDateFilter,
   offset,
 }) => {
-  const walletName =
+  const walletId =
     typeof selectedWallet === "object"
-      ? selectedWallet?.walletName
+      ? selectedWallet?.walletId
       : selectedWallet;
 
   const TransFilter = useMemo(() => {
     // THÊM: lọc theo ví trước, để mọi thống kê và danh sách đều theo ví đang chọn
     const walletTrans =
-      walletName && Array.isArray(transactions)
-        ? transactions.filter((t) => t.walletType === walletName && t.tag !=="transfer")
+      walletId && Array.isArray(transactions)
+        ? transactions.filter((t) => t.walletId === walletId && t.tag !=="transfer")
         : transactions;
 
     const prevfilteredTrans = filterTransactionsByDate(
@@ -53,8 +53,8 @@ export const useTransactions = ({
   }, [transactions, walletName, offset, selectedDateFilter]);
 
   const transactionCalculation = useMemo(() => {
-    const totalExpenseAllTime = getTotalExpense(transactions, walletName);
-    const totalIncomeAllTime = getToltalIncome(transactions, walletName);
+    const totalExpenseAllTime = getTotalExpense(transactions, walletId);
+    const totalIncomeAllTime = getToltalIncome(transactions, walletId);
     const prevExpenseValueByDate = getPrevTotalExpense(
       TransFilter.prevfilteredTrans,
     );
@@ -87,7 +87,7 @@ export const useTransactions = ({
       mostExpensiveType,
       mostExpensiveAmount,
     };
-  }, [transactions, walletName, TransFilter]);
+  }, [transactions, walletId, TransFilter]);
 
   return {
     transactionCalculation,

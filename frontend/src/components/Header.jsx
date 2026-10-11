@@ -1,9 +1,6 @@
 import { cn } from "@/lib/utils";
-import { userStore } from "@/stores/useAuthStore";
 import {  CircleDollarSign } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
-
 const Header = ({ setSelectedDateFilter,setOffset }) => {
    const today = new Date();
  
@@ -37,11 +34,6 @@ const Header = ({ setSelectedDateFilter,setOffset }) => {
 
       {/* KHU VỰC TÌM KIẾM & THÔNG BÁO */}
       <div className="flex items-center gap-1 justify-between flex-row">
-        {/* <button className="relative p-2 shrink-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
-          <Bell className="w-5 h-5 text-black" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-950"></span>
-        </button> */}
-        {/* <CircleUserRound color="black" className="w-7 h-7" /> */}
         <div className="flex items-center bg-[#E5EEFF] rounded-xl p-1 gap-1" >
           <button className={cn(" px-2 py-1 rounded-sm", selectedValue === "day" && "bg-white text-green-700")} type="button" onClick={() => handleChange("day")}>
             Ngày

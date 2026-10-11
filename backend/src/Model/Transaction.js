@@ -38,8 +38,9 @@ export const transactionSchema = new mongoose.Schema(
       default: null,
     },
 
-    walletType: {
-      type: String,
+    walletid: {
+       type: mongoose.Schema.Types.ObjectId,
+       ref: "Wallet",
      
       required: true,
     },

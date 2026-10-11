@@ -12,7 +12,7 @@ import { useTransactionsStore } from "@/stores/useTransactionsStore";
 // 1. Cập nhật Schema đồng bộ với tất cả các input trong Form
 
 const defaultFormValues = {
-  walletName: "",
+  walletId: "",
   amount: 0,
   type: "deposit",
 };
@@ -31,10 +31,9 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
           type: z.enum(["withdraw", "deposit"], {
             message: "Vui lòng chọn loại giao dịch!",
           }),
-          walletName: z
+          walletId: z
             .string()
-            .min(1, "Bạn chưa chọn hoặc nhập tên ví!")
-            .max(20, "Tên ví tối đa chỉ 20 kí tự!"),
+            .min(1, "Bạn chưa chọn ví!"),
           amount: z.coerce
             .number({ message: "Vui lòng nhập số!" })
             .positive("Số tiền phải lớn hơn 0!")
@@ -43,12 +42,12 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
         .superRefine((data, ctx) => {
           if (data.type !== "withdraw") return;
 
-          const wallet = wallets.find((w) => w.walletName === data.walletName);
+          const wallet = wallets.find((w) => w._id === data.walletId);
 
           if (!wallet) {
             ctx.addIssue({
               code: "custom",
-              path: ["walletName"],
+              path: ["walletId"],
               message: "Ví không tồn tại, không thể rút tiền!",
             });
             return;
@@ -86,17 +85,17 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
   };
   const onSubmit = async (data) => {
     try {
-      // 3. Đúng tên trường dữ liệu từ form
-      await updateWallet(data.walletName, data.amount, data.type); // Refresh danh sách ví
+      const wallet = wallets.find((w) => w._id === data.walletId);
+      await updateWallet(data.walletId, data.amount, data.type); // Refresh danh sách ví
       const transDate = {
         title: (data.type==='withdraw') ? "Rút tiền": "Nạp tiền",
         amount: data.amount,
         description: "",
         tag: "transfer",
         type: (data.type==='withdraw') ? "expense": "income",
-        walletType:data.walletName,
+        walletType: wallet?.walletName || "",
       };
-      await createTransaction(transDate);
+      await createTransaction(transDate, data.walletId);
       setWalletTransferForm(false); // Đóng modal
     } catch (error) {
       console.error("Error updating wallet:", error);
@@ -176,7 +175,7 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
               Tên ví
             </label>
             <Controller
-              name="walletName" // Đổi walletType thành walletName cho khớp với Schema
+              name="walletId"
               control={control}
               render={({ field }) => (
                 <MyCombobox
@@ -188,9 +187,9 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
                 />
               )}
             />
-            {errors.walletName && (
+            {errors.walletId && (
               <div className="mt-1.5 rounded-lg bg-red-50 p-2 text-xs text-red-600">
-                {errors.walletName.message}
+                {errors.walletId.message}
               </div>
             )}
           </div>

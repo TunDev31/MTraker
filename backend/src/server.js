@@ -55,6 +55,7 @@ app.use("/api/users", protectedRoute, userRoutes);
 app.use("/api/transactions", protectedRoute, transactionsRoute);
 app.use("/api/wallets", protectedRoute, walletRoute);
 
+
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(frontendDistPath));
 

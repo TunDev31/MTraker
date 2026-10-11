@@ -7,13 +7,18 @@ import TransactionsDetails from "./TransactionsDetails";
 import { useTransactionsStore } from "@/stores/useTransactionsStore";
 import { useWalletStore } from "@/stores/useWalletStore";
 import { useTransactions } from "@/hooks/useTransactions";
+import { Skeleton } from "@/components/ui/skeleton"; // thêm
+import TransactionRowSkeleton from "./TransactionRowSkeleton ";
+
+
+const PAGE_SIZE = 4; // thêm: dùng chung cho phân trang và số dòng skeleton
 
 function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
-  // 1. Logic tính toán mốc thời gian dựa trên offSet
   const transactions = useTransactionsStore((state) => state.transactions);
-  const selectedWallet = useWalletStore((state) => state.selectedWallet);
-  const walletName = selectedWallet?.walletName || "";
-  // Hook lọc theo ví + kỳ; offset đổi mỗi lần bấm mũi tên
+  const transLoading = useTransactionsStore((state) => state.loading); // thêm
+  const walletsLoading = useWalletStore((state) => state.loading); // thêm
+  const isLoading = transLoading || walletsLoading; // thêm
+
   const { TransFilter } = useTransactions({
     selectedWallet: "",
     transactions,
@@ -27,7 +32,7 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
     handlePrevPage,
     handleNextPage,
     handleChangePage,
-  } = usePagination(TransFilter.filteredTransByDate, 4);
+  } = usePagination(TransFilter.filteredTransByDate, PAGE_SIZE);
 
   const getDateLabel = () => {
     if (offSet === 0) {
@@ -66,7 +71,6 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
   };
 
   return itemSelected ? (
-    /* Khung bọc khi xem Chi tiết */
     <div className="fixed inset-0 z-10 flex h-full w-full items-center justify-center bg-black/60 px-4 pt-10 pb-18 backdrop-blur-xs">
       <TransactionsDetails
         item={itemSelected}
@@ -74,10 +78,9 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
       />
     </div>
   ) : (
-    /* Bảng danh sách khi chưa chọn item */
     <div className="mt-3 mb-16 flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
       <div>
-        {/* Header: tiêu đề + điều hướng thời gian */}
+        {/* Header giữ nguyên, chỉ thêm disabled khi đang tải */}
         <div className="flex items-center justify-between border-b border-black/5 bg-white px-3 py-2 text-xs font-bold text-(--credit-bg-color) uppercase">
           <span>CHI TIÊU: {getDateLabel()}</span>
 
@@ -85,7 +88,8 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
             <button
               type="button"
               onClick={() => handleOffSetChange("prev")}
-              className="p-1 transition-colors hover:text-green-500"
+              disabled={isLoading} // thêm
+              className="p-1 transition-colors hover:text-green-500 disabled:opacity-30" // thêm disabled:opacity-30
               title="Lùi thời gian"
             >
               <ChevronFirst size={18} />
@@ -93,9 +97,9 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
             <button
               type="button"
               onClick={() => handleOffSetChange("cont")}
-              disabled={offSet === 0}
+              disabled={offSet === 0 || isLoading} // sửa
               className={`p-1 transition-colors ${
-                offSet === 0
+                offSet === 0 || isLoading
                   ? "cursor-not-allowed opacity-30"
                   : "hover:text-green-500"
               }`}
@@ -106,9 +110,13 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
           </div>
         </div>
 
-        {/* Danh sách: <ul> chứa các <li> của TransactionItem */}
-        <ul className="divide-y divide-black/5">
-          {visibleTaskNums?.transShow?.length > 0 ? (
+        {/* Danh sách: loading -> skeleton, rỗng -> empty state, có dữ liệu -> item */}
+        <ul className="divide-y divide-black/5" aria-busy={isLoading}>
+          {isLoading ? (
+            Array.from({ length: PAGE_SIZE }).map((_, i) => (
+              <TransactionRowSkeleton key={i} />
+            ))
+          ) : visibleTaskNums?.transShow?.length > 0 ? (
             visibleTaskNums.transShow.map((trans) => (
               <TransactionItem
                 key={trans._id}
@@ -124,13 +132,20 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
         </ul>
       </div>
 
-      <TablePagination
-        pageNums={pageNums}
-        handlePrevPage={handlePrevPage}
-        totalPage={visibleTaskNums.totalPage}
-        handleNextPage={handleNextPage}
-        handleChangePage={handleChangePage}
-      />
+      {/* Phân trang: loading -> skeleton nhỏ */}
+      {isLoading ? (
+        <div className="flex justify-center p-3">
+          <Skeleton className="h-6 w-24" />
+        </div>
+      ) : (
+        <TablePagination
+          pageNums={pageNums}
+          handlePrevPage={handlePrevPage}
+          totalPage={visibleTaskNums.totalPage}
+          handleNextPage={handleNextPage}
+          handleChangePage={handleChangePage}
+        />
+      )}
     </div>
   );
 }

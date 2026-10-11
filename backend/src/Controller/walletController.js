@@ -29,11 +29,11 @@ export const createNewWallet = async (req,res)=> {
 }
 export const updateWallet = async (req, res) => {
     try {
-        const { walletName } = req.params;
+        const { walletId } = req.params;
         const userId = req.user._id;
        
         const { amount } = req.body;
-        const wallet = await Wallet.findOne({ walletName, userId });
+        const wallet = await Wallet.findOne({ _id: walletId, userId });
     
         if (!wallet) {
             return res.status(404).json({ message: "Wallet not found" });
@@ -44,5 +44,23 @@ export const updateWallet = async (req, res) => {
     } catch (error) {
         console.error("Loi khi updateWallet!");
         return res.status(501).json({ message: "Loi he thong" });
+    }
+}
+export const getAnalyzeReport = async (req, res)=> {
+    try {
+         const userId = req.user._id;
+          
+         const wallet = await Wallet.find({  userId });
+         if (!wallet) {
+            return res.status(404).json({ message: "Wallet not found" });
+        }
+        const totalWalletNums =await  Wallet.countDocuments({userId});
+        const report = {
+            totalWalletNums,
+        }
+        return res.status(200).json(report);
+    } catch (error) {
+        console.log("Lỗi khi get wallet report");
+        res.status(501).json({message:"Loi he thong!"});
     }
 }
