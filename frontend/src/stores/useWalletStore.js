@@ -7,26 +7,24 @@ export const useWalletStore = create((set, get) => ({
   loading: false,
   selectedWallet: null,
   walletReport: null,
-  fetchReport: async ()=> {
-    try {
-      set({loading:true});
-     
-      if (!get().wallets) return;
-      const report = await walletService.fetchWalletReport();
-      if (!report) {
-        console.log("Loi khi tai report");
-        return false;
-      }
-
-      set({walletReport: report});
-        return true;
-    } catch (error) {
-      console.log("Loi he thong");
+  reportLoading: false,
+  fetchReport: async () => {
+  set({ reportLoading: true });
+  try {
+    const report = await walletService.fetchWalletReport();
+    if (!report) {
+      console.log("Loi khi tai report");
       return false;
-    } finally {
-      set({loading: false});
     }
-  },
+    set({ walletReport: report });
+    return true;
+  } catch (error) {
+    console.log("Loi he thong", error);
+    return false;
+  } finally {
+    set({ reportLoading: false });
+  }
+},
   fetchWallets: async () => {
     set({ loading: true });
     try {

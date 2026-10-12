@@ -2,8 +2,6 @@ import { Eye, EyeOff, Settings, Plus, ArrowLeftRight, CardSim } from "lucide-rea
 import React, { useState, useMemo } from "react";
 import MyCombobox from "./ui/MyCombobox";
 import { useWalletStore } from "@/stores/useWalletStore";
-import { useTransactions } from "@/hooks/useTransactions";
-import { useTransactionsStore } from "@/stores/useTransactionsStore";
 import WalletTransferForm from "./WalletTransferForm";
 
 // Nền thẻ: gradient xanh đậm + viền xanh mờ

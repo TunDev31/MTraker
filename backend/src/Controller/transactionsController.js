@@ -5,9 +5,21 @@ import { getDateRange } from "../utils/DatePeriodUtils.js";
 export const getAllTransactions = async (req, res) => {
   try {
     const userId = req.user._id;
-    const transactions = await Transaction.find({ userId }).sort({
-      createdAt: -1,
-    });
+     const { offSet, selectedDateFilter } = req.query;
+      
+    const offset = parseInt(offSet, 10);
+    if (isNaN(offset) || offset < 0) {
+    
+      return res.status(400).json({ message: "offset khong hop le" });
+    }
+
+    const range = getDateRange(selectedDateFilter, offset);
+    if (!range) {
+      return res.status(400).json({ message: "Bo loc ngay khong hop le" });
+    }
+    const transactions = await Transaction.aggregate([
+      { $match: { userId, createdAt: { $gte: range.start, $lt: range.end } } },
+    ])
     return res.status(200).json(transactions);
   } catch (error) {
     console.error("Loi khi get:", error);

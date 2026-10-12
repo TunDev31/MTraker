@@ -4,20 +4,24 @@ import avatar from "../assets/avatarImg.png";
 import { userStore } from "@/stores/useAuthStore";
 import { useWalletStore } from "@/stores/useWalletStore";
 import { useTransactionsStore } from "@/stores/useTransactionsStore";
+import PersonalPageSkeleton from "@/components/PersonalPageSkeleton";
 const PersonalPage = () => {
   const user = userStore((state) => state.user);
+  const userLoading = userStore((state) => state.loading);
   const report = useWalletStore((state) => state.walletReport);
   const fetchReport = useWalletStore((state) => state.fetchReport);
+
   const wallet = useWalletStore((state) => state.wallets);
-  const fetchTransReport = useTransactionsStore(
-    (state) => state.fetchTransAnalyze,
-  );
   const trans = useTransactionsStore((state) => state.transactions);
+
   const transReport = useTransactionsStore((state) => state.report);
+  const reportLoading = useWalletStore((s) => s.reportLoading);
+  const isLoading = userLoading || (reportLoading && !report);
   useEffect(() => {
     fetchReport();
   }, [wallet, trans]);
   const date = user?.createdAt;
+  if (isLoading) return <PersonalPageSkeleton />;
   const joinDate = new Date(date);
   return (
     <div className="flex flex-col gap-3 p-4 ">
@@ -53,11 +57,15 @@ const PersonalPage = () => {
           </div>
           <div className="flex flex-col justify-between items-center bg-[#E5EEFF] rounded-xl py-1 text-sm px-0.5 ">
             <p>Giao dịch</p>
-            <p className="text-black font-bold  text-xl">{transReport?.count}</p>
+            <p className="text-black font-bold  text-xl">
+              {transReport?.count}
+            </p>
           </div>
           <div className="flex flex-col justify-between items-center bg-[#E5EEFF] rounded-xl py-1 text-sm ">
             <p>Tổng dư</p>
-            <p className="text-black font-bold  text-xl">{report?.total.toLocaleString("vi-VN")}</p>
+            <p className="text-black font-bold  text-xl">
+              {report?.total.toLocaleString("vi-VN")}
+            </p>
           </div>
         </div>
       </div>

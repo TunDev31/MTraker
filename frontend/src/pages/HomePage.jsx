@@ -21,14 +21,14 @@ function HomePage() {
 const fetchWallet = useWalletStore((s) => s.fetchWallets);
   const fetchTransactions = useTransactionsStore((s) => s.fetchTransactions);
   const fetchTransAnalyze = useTransactionsStore((s)=>s.fetchTransAnalyze);
-  const trans = useTransactionsStore((s)=>s.transactions);
   useEffect(() => {
     fetchWallet();
-    fetchTransactions();
+    
   }, []);
   useEffect(()=> {
     fetchTransAnalyze({offSet,selectedDateFilter});
-  },[offSet,selectedDateFilter,trans]);
+    fetchTransactions({offSet,selectedDateFilter});
+  },[offSet,selectedDateFilter]);
   return (
     <div className="flex-1 flex flex-col gap-1 px-1 py-1 sm:py-3 sm:px-3 sm:gap-2">
       <Header

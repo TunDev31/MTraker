@@ -1,20 +1,8 @@
-import React, { useMemo } from "react";
 import { useTransactionsStore } from "@/stores/useTransactionsStore";
-import { useWalletStore } from "@/stores/useWalletStore";
-import { useTransactions } from "@/hooks/useTransactions";
-import { getCardValue } from "@/utils/SpendingUtils/CalculateUtils" // đổi đường dẫn cho đúng file utils của bạn
 import CardItem from "./CardItem";
 
-const CardLayout = () => {
-
-
-  // Hook đã lọc theo ví + kỳ (theo offset)
-
-
-  // Gom nhóm theo tag: [{ tag, total, percent }, ...]
-
+const CardLayout = () => { 
   const report = useTransactionsStore((s)=> s.report);
-  // Map dữ liệu vào CardItem rồi push vào cards
   const cards = [];
   report?.byTag?.filter((item) => item.type ==="expense" ).map((item)=> {
     cards.push(

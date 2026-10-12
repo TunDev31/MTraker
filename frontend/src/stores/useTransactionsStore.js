@@ -27,10 +27,10 @@ export const useTransactionsStore = create((set, get) => ({
       set({loading:false})
     }
   },
-  fetchTransactions: async () => {
+  fetchTransactions: async (params) => {
     try {
       set({ loading: true });
-      const res = await getAllTransactions();
+      const res = await getAllTransactions(params);
      
       set({ transactions: res.data });
      

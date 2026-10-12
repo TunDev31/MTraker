@@ -6,7 +6,6 @@ import { useState } from "react";
 import TransactionsDetails from "./TransactionsDetails";
 import { useTransactionsStore } from "@/stores/useTransactionsStore";
 import { useWalletStore } from "@/stores/useWalletStore";
-import { useTransactions } from "@/hooks/useTransactions";
 import { Skeleton } from "@/components/ui/skeleton"; // thêm
 import TransactionRowSkeleton from "./TransactionRowSkeleton ";
 
@@ -19,12 +18,7 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
   const walletsLoading = useWalletStore((state) => state.loading); // thêm
   const isLoading = transLoading || walletsLoading; // thêm
 
-  const { TransFilter } = useTransactions({
-    selectedWallet: "",
-    transactions,
-    selectedDateFilter,
-    offset: offSet,
-  });
+
   const [itemSelected, setSelectedItem] = useState(undefined);
   const {
     visibleTaskNums,
@@ -32,7 +26,7 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
     handlePrevPage,
     handleNextPage,
     handleChangePage,
-  } = usePagination(TransFilter.filteredTransByDate, PAGE_SIZE);
+  } = usePagination(transactions, PAGE_SIZE);
 
   const getDateLabel = () => {
     if (offSet === 0) {
