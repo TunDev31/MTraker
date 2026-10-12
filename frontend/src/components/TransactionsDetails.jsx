@@ -18,6 +18,7 @@ import { useTransactionsStore } from "@/stores/useTransactionsStore";
 import UpdatingTransForm, { TAG_CONFIG } from "./UpdatingTransForm";
 import TransactionsIcon from "./TransactionsIcon";
 import { ICON_CLASS, ICON_COLOR, ICON_MAP, ICON_TEXTCOLOR } from '@/utils/SpendingUtils/TransactionsIconUtils'
+import { useWalletStore } from "@/stores/useWalletStore";
 const TransactionsDetails = ({ item, onClose }) => {
   const [isRewriteEnable, setRewriteEnable] = useState(false);
 
@@ -46,7 +47,7 @@ const TransactionsDetails = ({ item, onClose }) => {
   const tagKey = (item?.tag || "").toLowerCase();
   const tagCfg = TAG_CONFIG[tagKey];
 
-
+const updateWallet = useWalletStore((state) => state.updateWallet);
   const handleDelete = async () => {
     if (isDeleting) return;
     setIsDeleting(true);
@@ -54,7 +55,12 @@ const TransactionsDetails = ({ item, onClose }) => {
     try {
       const ok = await deleteTransaction(item._id);
       if (ok) {
+       
+        const type = (item.type ==='expense') ? 'income' : 'expense';
+         
+        updateWallet(item.walletId, item.amount,type);
         onClose(); // giao dịch đã bị gỡ khỏi store, đóng khung chi tiết
+        
       } else {
         setDeleteError(true);
       }

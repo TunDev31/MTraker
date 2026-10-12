@@ -1,20 +1,32 @@
-import { Skeleton } from "@/components/ui/skeleton";
+// components/CardLayoutSkeleton.jsx
+const CardLayoutSkeleton = ({ count = 3 }) => {
+  return (
+    <div className="flex flex-col animate-pulse">
+      {/* Header: tiêu đề + nút Chi tiết */}
+      <div className="flex items-center justify-between px-2">
+        <div className="h-5 w-36 rounded bg-gray-200" />
+        <div className="h-5 w-14 rounded bg-gray-200" />
+      </div>
 
-const CardLayoutSkeleton = () => (
-  <div className="flex flex-col" aria-busy="true" aria-label="Đang tải thống kê">
-    <div className="flex items-center justify-between px-2">
-      <h1 className="font-bold">Thống kê chi tiêu</h1>
-      <Skeleton className="h-4 w-14" />
+      {/* Hàng card cuộn ngang */}
+      <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-2 py-3">
+        {Array.from({ length: count }).map((_, i) => (
+          <div key={i} className="w-[42%] shrink-0 snap-start">
+            <div className="flex flex-col gap-3 rounded-xl border border-gray-200 p-3">
+              {/* tag */}
+              <div className="h-4 w-2/3 rounded bg-gray-200" />
+              {/* total */}
+              <div className="h-6 w-full rounded bg-gray-200" />
+              {/* thanh phần trăm */}
+              <div className="h-2 w-full rounded-full bg-gray-200" />
+              {/* percent */}
+              <div className="h-3 w-10 rounded bg-gray-200" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-    <div className="flex gap-2 overflow-hidden px-2 py-3">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="w-[42%] shrink-0">
-          {/* chỉnh h-28 cho bằng chiều cao CardItem thật */}
-          <Skeleton className="h-28 w-full rounded-2xl" />
-        </div>
-      ))}
-    </div>
-  </div>
-);
+  );
+};
 
 export default CardLayoutSkeleton;

@@ -50,14 +50,18 @@ export const getAnalyzeReport = async (req, res)=> {
     try {
          const userId = req.user._id;
           
-         const wallet = await Wallet.find({  userId });
-         if (!wallet) {
-            return res.status(404).json({ message: "Wallet not found" });
-        }
-        const totalWalletNums =await  Wallet.countDocuments({userId});
-        const report = {
-            totalWalletNums,
-        }
+         const walletReport = await Wallet.aggregate([
+         {$match: {userId}},
+         {$group: {
+            _id:null,
+            total: {$sum: "$remainAmount"},
+            count: {$sum: 1}
+
+         }}
+         ]);
+         
+       
+        const report = walletReport[0] || {total: 0, count: 0};
         return res.status(200).json(report);
     } catch (error) {
         console.log("Lỗi khi get wallet report");

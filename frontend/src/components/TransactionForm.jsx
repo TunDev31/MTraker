@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { Check, TrendingDown, TrendingUp } from "lucide-react";
 
+
 // 1. Định nghĩa Zod Schema
 const transactionSchema = z.object({
   title: z
@@ -28,14 +29,7 @@ const transactionSchema = z.object({
   walletId: z.string().min(1, "Bạn chưa chọn ví để thực hiện giao dịch!"),
 });
 
-const defaultFormValues = {
-  title: "",
-  amount: "",
-  description: "",
-  tag: "",
-  type: "expense",
-  walletId: "",
-};
+
 
 const TAG_OPTIONS = [
   { label: "ĂN UỐNG", value: "food" },
@@ -47,12 +41,20 @@ const TAG_OPTIONS = [
 const TransactionForm = ({ setIsOpenForm }) => {
   // 2. Lấy danh sách ví từ Zustand Store
   const getWalletOptions = useWalletStore((state) => state.getWalletOptions);
+  const updateWallet = useWalletStore((state) => state.updateWallet);
   const options = getWalletOptions ? getWalletOptions() : [];
-
+  const selectedWallet = useWalletStore((s)=>s.selectedWallet);
   const createTransaction = useTransactionsStore(
     (state) => state.createTransaction,
   );
-
+const defaultFormValues = {
+  title: "",
+  amount: "",
+  description: "",
+  tag: "",
+  type: "expense",
+  walletId: selectedWallet.walletId,
+};
   // 3. Khởi tạo useForm
   const {
     register,
@@ -75,8 +77,13 @@ const TransactionForm = ({ setIsOpenForm }) => {
     try {
       const { walletId, ...transactionData } = data;
       const success = await createTransaction(transactionData, walletId);
+      
       if (success) {
-        toast("Thêm giao dịch thành công!");
+       
+        const {walletId, amount, type} = data;
+
+        updateWallet(walletId, amount, type);
+         toast("Thêm giao dịch thành công!");
         setIsOpenForm(false);
       }
     } catch (error) {

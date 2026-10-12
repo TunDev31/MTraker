@@ -11,12 +11,12 @@ export const useTransactionsStore = create((set, get) => ({
   transactions: [],
   loading: false,
   report: null,
-  fetchTransAnalyze: async ()=> {
+  fetchTransAnalyze: async (params)=> {
     try {
       set({loading:true});
     
-      const report = await getTransAnalyze();
-      console.log(report);
+      const report = await getTransAnalyze(params);
+   
       set({report :report.data});
       return true;
     } catch (error)
@@ -31,7 +31,9 @@ export const useTransactionsStore = create((set, get) => ({
     try {
       set({ loading: true });
       const res = await getAllTransactions();
+     
       set({ transactions: res.data });
+     
     } catch (error) {
       console.error("Loi khi lay trans!", error);
       return false;
@@ -75,6 +77,7 @@ export const useTransactionsStore = create((set, get) => ({
     set({ transactions: prev.filter((t) => t._id !== id) });
     try {
       await deleteTransactionApi(id);
+       
       return true;
     } catch (error) {
       console.error("Loi khi xoa trans!", error);

@@ -50,7 +50,7 @@ export const useTransactions = ({
       filteredTrans,
       filteredTransByDate,
     };
-  }, [transactions, walletName, offset, selectedDateFilter]);
+  }, [transactions, walletId, offset, selectedDateFilter]);
 
   const transactionCalculation = useMemo(() => {
     const totalExpenseAllTime = getTotalExpense(transactions, walletId);

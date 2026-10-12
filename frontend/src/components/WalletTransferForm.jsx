@@ -14,7 +14,7 @@ import { useTransactionsStore } from "@/stores/useTransactionsStore";
 const defaultFormValues = {
   walletId: "",
   amount: 0,
-  type: "deposit",
+  type: "expense",
 };
 
 const WalletTransferForm = ({ setWalletTransferForm }) => {
@@ -28,7 +28,7 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
     () =>
       z
         .object({
-          type: z.enum(["withdraw", "deposit"], {
+          type: z.enum(["expense", "income"], {
             message: "Vui lòng chọn loại giao dịch!",
           }),
           walletId: z
@@ -40,7 +40,7 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
             .int("Số tiền phải là số nguyên!"),
         })
         .superRefine((data, ctx) => {
-          if (data.type !== "withdraw") return;
+          if (data.type !== "expense") return;
 
           const wallet = wallets.find((w) => w._id === data.walletId);
 
@@ -88,11 +88,11 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
       const wallet = wallets.find((w) => w._id === data.walletId);
       await updateWallet(data.walletId, data.amount, data.type); // Refresh danh sách ví
       const transDate = {
-        title: (data.type==='withdraw') ? "Rút tiền": "Nạp tiền",
+        title: (data.type==='expense') ? "Rút tiền": "Nạp tiền",
         amount: data.amount,
         description: "",
         tag: "transfer",
-        type: (data.type==='withdraw') ? "expense": "income",
+        type: (data.type==='expense') ? "expense": "income",
         walletType: wallet?.walletName || "",
       };
       await createTransaction(transDate, data.walletId);
@@ -131,7 +131,7 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
               <label className="cursor-pointer">
                 <input
                   type="radio"
-                  value="deposit"
+                  value="income"
                   {...register("type")}
                   className="peer sr-only"
                 />
@@ -149,7 +149,7 @@ const WalletTransferForm = ({ setWalletTransferForm }) => {
               <label className="cursor-pointer">
                 <input
                   type="radio"
-                  value="withdraw"
+                  value="expense"
                   {...register("type")}
                   className="peer sr-only"
                 />

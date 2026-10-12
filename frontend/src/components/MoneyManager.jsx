@@ -13,7 +13,7 @@ const CARD_STYLE = {
   border: "1px solid rgba(34, 197, 94, 0.2)",
 };
 
-const MoneyManager = ({ selectedDateFilter, setWalletForm }) => {
+const MoneyManager = ({ setWalletForm }) => {
   const [isUserWalletVisible, setUserWalletVisible] = useState(true);
   const [openTransferForm, setOpenTransferForm] = useState(false);
 
@@ -21,21 +21,10 @@ const MoneyManager = ({ selectedDateFilter, setWalletForm }) => {
   const changeWallet = useWalletStore((state) => state.changeWallet);
   const selectedWallet = useWalletStore((state) => state.selectedWallet);
   const getWalletOptions = useWalletStore((state) => state.getWalletOptions);
-  const transactions = useTransactionsStore((state) => state.transactions);
-
-  const walletName = selectedWallet?.walletName || "";
-  const { transactionCalculation } = useTransactions({
-    selectedWallet: walletName,
-    transactions,
-    selectedDateFilter,
-    offset: 0,
-  });
+ 
 
   const currWalletRemainOrg = !selectedWallet ? 0 : selectedWallet.remainAmount;
-  const currWalletRemain =
-    currWalletRemainOrg -
-    transactionCalculation.totalExpenseAllTime +
-    transactionCalculation.totalIncomeAllTime;
+ 
   const currWalletName = !selectedWallet ? "" : selectedWallet.walletName;
 
 
@@ -99,7 +88,7 @@ const MoneyManager = ({ selectedDateFilter, setWalletForm }) => {
 
             <p className="mt-1 max-w-full truncate text-3xl font-bold tabular-nums">
               {isUserWalletVisible
-                ? currWalletRemain.toLocaleString("vi-VN")
+                ? currWalletRemainOrg.toLocaleString("vi-VN")
                 : "••••••••"}
               <span className="ml-2 text-xl font-semibold text-(--Green-color)">
                 VND

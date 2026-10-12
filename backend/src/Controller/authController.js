@@ -7,8 +7,6 @@ const ACCESS_TOKEN_TTL = '30m';
 const REFRESH_TOKEN_TTL = 14*24*60* 60*1000;
 const isProd = process.env.NODE_ENV === "production";
 export const signUp = async (req,res)=> {
-
-
     try {
         const {userName, password,email,firstName, lastName,} = req.body;
         if (!userName || !password || !email|| !firstName || !lastName) {

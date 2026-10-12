@@ -1,5 +1,6 @@
 import Transaction from "../Model/Transaction.js";
 import mongoose from "mongoose";
+import { getDateRange } from "../utils/DatePeriodUtils.js";
 // 1. GET ALL TRANSACTIONS
 export const getAllTransactions = async (req, res) => {
   try {
@@ -48,7 +49,7 @@ export const createTransaction = async (req, res) => {
     // 2. Khởi tạo và Lưu
     const transaction = new Transaction({
       userId,
-      walletid: walletId,
+      walletId: walletId,
       title: title.trim(),
       description: description || "",
       amount: numAmount,
@@ -147,26 +148,86 @@ export const deleteTransaction = async (req, res) => {
 export const getTransReport = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.user._id);
+    const { offSet, selectedDateFilter } = req.query;
 
-    const result = await Transaction.aggregate([
-      { $match: { userId } },
+    const offset = parseInt(offSet, 10);
+    if (isNaN(offset) || offset < 0) {
+    
+      return res.status(400).json({ message: "offset khong hop le" });
+    }
+
+    const range = getDateRange(selectedDateFilter, offset);
+    if (!range) {
+      return res.status(400).json({ message: "Bo loc ngay khong hop le" });
+    }
+
+    const [data] = await Transaction.aggregate([
+      { $match: { userId, createdAt: { $gte: range.start, $lt: range.end } } },
       {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
-          totalIncome: {
-            $sum: { $cond: [{ $eq: ["$type", "income"] }, "$amount", 0] },
-          },
-          totalExpense: {
-            $sum: { $cond: [{ $eq: ["$type", "expense"] }, "$amount", 0] },
-          },
+        $facet: {
+          allTrans: [
+            {
+              $group: {
+                _id: null,
+                count: { $sum: 1 },
+                totalIncome: {
+                  $sum: { $cond: [{ $eq: ["$type", "income"] }, "$amount", 0] },
+                },
+                totalExpense: {
+                  $sum: { $cond: [{ $eq: ["$type", "expense"] }, "$amount", 0] },
+                },
+              },
+            },
+          ],
+          byTag: [
+            {
+              $group: {
+                _id: { tag: "$tag", type: "$type" },
+                total: { $sum: "$amount" },
+                count: { $sum: 1 },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                tag: "$_id.tag",
+                type: "$_id.type",
+                total: 1,
+                count: 1,
+              },
+            },
+            { $sort: { total: -1 } },
+          ],
         },
       },
-      { $project: { _id: 0 } },
     ]);
 
-    const report = result[0] || { count: 0, totalIncome: 0, totalExpense: 0 };
-    return res.status(200).json(report);
+    const summaryAll = data.allTrans[0] ?? {
+      count: 0,
+      totalIncome: 0,
+      totalExpense: 0,
+    };
+
+    const totals = {
+      income: summaryAll.totalIncome,
+      expense: summaryAll.totalExpense,
+    };
+
+    const byTag = data.byTag.map((item) => {
+      const base = totals[item.type];
+      return {
+        ...item,
+        percent: base > 0 ? Number(((item.total / base) * 100).toFixed(1)) : 0,
+      };
+    });
+
+    return res.status(200).json({
+      count: summaryAll.count,
+      totalIncome: summaryAll.totalIncome,
+      totalExpense: summaryAll.totalExpense,
+      balance: summaryAll.totalIncome - summaryAll.totalExpense,
+      byTag,
+    });
   } catch (error) {
     console.error("Loi khi get trans report:", error);
     return res.status(500).json({ message: "Loi he thong" });

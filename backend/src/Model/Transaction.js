@@ -38,7 +38,7 @@ export const transactionSchema = new mongoose.Schema(
       default: null,
     },
 
-    walletid: {
+    walletId: {
        type: mongoose.Schema.Types.ObjectId,
        ref: "Wallet",
      

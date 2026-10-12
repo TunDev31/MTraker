@@ -15,7 +15,7 @@ export const walletService = {
     return res.data;
   },
   updateWallet: async (walletId, amount, type) => {
-    const amountType = type === "deposit" ? amount : -amount; // Adjust amount based on transaction type
+    const amountType = type === "expense" ? -amount : amount; // Adjust amount based on transaction type
     const res = await api.put(`/wallets/${walletId}`, { amount: amountType }, { withCredentials: true });
     return res.data;
   },

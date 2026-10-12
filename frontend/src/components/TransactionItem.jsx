@@ -1,10 +1,12 @@
 import { cn } from "@/lib/utils";
-import TransactionsIcon from "./TransactionsIcon";
+
 import { ICON_CLASS, ICON_TEXTCOLOR } from "@/utils/SpendingUtils/TransactionsIconUtils";
 import { Banknote, Landmark } from "lucide-react";
+import { useWalletStore } from "@/stores/useWalletStore";
 
 function TransactionItem({ item, setSelectedItem }) {
-  const iconKey = item.tag
+ const getWalletById = useWalletStore((s)=>s.getWalletById);
+ const itemWallet = getWalletById(item.walletId);
   const itemDate = new Date(item.createdAt);
   const hourString =
     String(itemDate.getHours()).padStart(2, "0") +
@@ -36,8 +38,8 @@ function TransactionItem({ item, setSelectedItem }) {
                     </span>
            
             <span className="flex gap-1 justify-center items-center text-sm font-semibold text-gray-900">
-                    {item?.walletType ==="Tiền mặt" ? <Banknote color="green" /> : <Landmark />}
-                    {item?.walletType || "Không xác định"}
+                    {itemWallet?.walletName ==="Tiền mặt" ? <Banknote color="green" /> : <Landmark />}
+                    {itemWallet?.walletName || "Không xác định"}
                   </span>
           </span>
         </span>

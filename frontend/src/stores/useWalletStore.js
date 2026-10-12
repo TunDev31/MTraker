@@ -64,9 +64,9 @@ export const useWalletStore = create((set, get) => ({
     set({ selectedWallet: walletNeedChange ? { ...walletNeedChange } : null });
   },
 
-  getBalanceById: (walletId) => {
+  getWalletById: (walletId) => {
     const wallet = get().wallets.find((w) => w._id === walletId);
-    return wallet ? wallet.remainAmount : 0;
+    return wallet;
   },
 
   getTotalBalance: () => {

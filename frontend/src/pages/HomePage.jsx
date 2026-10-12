@@ -1,5 +1,5 @@
 // pages/HomePage.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import MoneyManager from "@/components/MoneyManager";
 import CardLayout from "@/components/CardLayout";
@@ -13,12 +13,22 @@ import TransactionTableSkeleton from "@/components/TransactionTableSkeleton";
 function HomePage() {
   const [walletForm, setWalletForm] = useState(false);
   const [selectedDateFilter, setSelectedDateFilter] = useState("day");
-  const [offset, setOffSet] = useState(0);
+  const [offSet, setOffSet] = useState(0);
 
   const loadingWallet = useWalletStore((s) => s.loading);
   const loadingTrans = useTransactionsStore((s) => s.loading);
   const isLoading = loadingWallet || loadingTrans;
-
+const fetchWallet = useWalletStore((s) => s.fetchWallets);
+  const fetchTransactions = useTransactionsStore((s) => s.fetchTransactions);
+  const fetchTransAnalyze = useTransactionsStore((s)=>s.fetchTransAnalyze);
+  const trans = useTransactionsStore((s)=>s.transactions);
+  useEffect(() => {
+    fetchWallet();
+    fetchTransactions();
+  }, []);
+  useEffect(()=> {
+    fetchTransAnalyze({offSet,selectedDateFilter});
+  },[offSet,selectedDateFilter,trans]);
   return (
     <div className="flex-1 flex flex-col gap-1 px-1 py-1 sm:py-3 sm:px-3 sm:gap-2">
       <Header
@@ -38,7 +48,7 @@ function HomePage() {
         {isLoading ? (
           <CardLayoutSkeleton />
         ) : (
-          <CardLayout selectedDateFilter={selectedDateFilter} offSet={offset} />
+          <CardLayout  />
         )}
 
         {isLoading ? (
@@ -47,7 +57,7 @@ function HomePage() {
           <TransactionTable
             selectedDateFilter={selectedDateFilter}
             setOffSet={setOffSet}
-            offSet={offset}
+            offSet={offSet}
           />
         )}
       </main>

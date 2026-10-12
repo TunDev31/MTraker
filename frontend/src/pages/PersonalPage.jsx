@@ -6,20 +6,21 @@ import { useWalletStore } from "@/stores/useWalletStore";
 import { useTransactionsStore } from "@/stores/useTransactionsStore";
 const PersonalPage = () => {
   const user = userStore((state) => state.user);
-  const report = useWalletStore((state)=> state.walletReport);
-  const fetchReport = useWalletStore((state)=> state.fetchReport);
-  const wallet = useWalletStore((state)=> state.wallets);
-  const fetchTransReport = useTransactionsStore((state)=> state.fetchTransAnalyze);
-  const trans =  useTransactionsStore((state)=> state.transactions);
-  const transReport = useTransactionsStore((state)=> state.report);
-  useEffect(()=> {
+  const report = useWalletStore((state) => state.walletReport);
+  const fetchReport = useWalletStore((state) => state.fetchReport);
+  const wallet = useWalletStore((state) => state.wallets);
+  const fetchTransReport = useTransactionsStore(
+    (state) => state.fetchTransAnalyze,
+  );
+  const trans = useTransactionsStore((state) => state.transactions);
+  const transReport = useTransactionsStore((state) => state.report);
+  useEffect(() => {
     fetchReport();
-    fetchTransReport();
-  },[wallet,trans])
+  }, [wallet, trans]);
   const date = user?.createdAt;
   const joinDate = new Date(date);
   return (
-    <div className="flex flex-col gap-3 p-4 bg">
+    <div className="flex flex-col gap-3 p-4 ">
       <div className="flex justify-between items-center p-1">
         <ArrowLeft size={28} className="bg-[#EFF4FF]" />
         <h1>Trang cá nhân</h1>
@@ -45,23 +46,21 @@ const PersonalPage = () => {
             year: "numeric",
           })}
         </p>
-       <div className="grid grid-cols-3">
-        <div>
+        <div className="grid grid-cols-3 gap-2  w-full">
+          <div className="flex flex-col  justify-between items-center bg-[#E5EEFF] rounded-xl py-1 text-sm ">
             <p>Số ví</p>
-            <p>{report?.totalWalletNums}</p>
+            <p className="text-black font-bold text-xl">{report?.count}</p>
+          </div>
+          <div className="flex flex-col justify-between items-center bg-[#E5EEFF] rounded-xl py-1 text-sm px-0.5 ">
+            <p>Giao dịch</p>
+            <p className="text-black font-bold  text-xl">{transReport?.count}</p>
+          </div>
+          <div className="flex flex-col justify-between items-center bg-[#E5EEFF] rounded-xl py-1 text-sm ">
+            <p>Tổng dư</p>
+            <p className="text-black font-bold  text-xl">{report?.total.toLocaleString("vi-VN")}</p>
+          </div>
         </div>
-        <div>
-            <p>Tổng giao dịch</p>
-            <p>{transReport?.count}</p>
-        </div>
-        <div></div>
-
       </div>
-      </div>
-
-
-
-      
     </div>
   );
 };

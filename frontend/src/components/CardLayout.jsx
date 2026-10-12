@@ -5,28 +5,18 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { getCardValue } from "@/utils/SpendingUtils/CalculateUtils" // đổi đường dẫn cho đúng file utils của bạn
 import CardItem from "./CardItem";
 
-const CardLayout = ({ selectedDateFilter, offSet = 0 }) => {
-  const transactions = useTransactionsStore((state) => state.transactions);
-  const selectedWallet = useWalletStore((state) => state.selectedWallet);
-  const walletName = selectedWallet?.walletName || "";
+const CardLayout = () => {
+
 
   // Hook đã lọc theo ví + kỳ (theo offset)
-  const { TransFilter } = useTransactions({
-    selectedWallet: "",
-    transactions,
-    selectedDateFilter,
-    offset: offSet,
-  });
+
 
   // Gom nhóm theo tag: [{ tag, total, percent }, ...]
-  const cardValue = useMemo(
-    () => getCardValue(TransFilter.filteredTransByDate),
-    [TransFilter.filteredTransByDate],
-  );
 
+  const report = useTransactionsStore((s)=> s.report);
   // Map dữ liệu vào CardItem rồi push vào cards
   const cards = [];
-  cardValue.forEach((item) => {
+  report?.byTag?.filter((item) => item.type ==="expense" ).map((item)=> {
     cards.push(
       <CardItem
         key={item.tag}
@@ -35,7 +25,7 @@ const CardLayout = ({ selectedDateFilter, offSet = 0 }) => {
         percent={item.percent}
       />,
     );
-  });
+  })
 
   if (cards.length === 0) {
     return (
