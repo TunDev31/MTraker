@@ -46,8 +46,13 @@ const TransactionsDetails = ({ item, onClose }) => {
   const isExpense = (item?.type || "expense") === "expense";
   const tagKey = (item?.tag || "").toLowerCase();
   const tagCfg = TAG_CONFIG[tagKey];
-
+  const walletId = item?.walletId;
+  
 const updateWallet = useWalletStore((state) => state.updateWallet);
+const getWalletById = useWalletStore((s)=> s.getWalletById);
+const wallet = getWalletById(walletId);
+const walletName = wallet?.walletName;
+console.log(wallet);
   const handleDelete = async () => {
     if (isDeleting) return;
     setIsDeleting(true);
@@ -70,7 +75,7 @@ const updateWallet = useWalletStore((state) => state.updateWallet);
       setIsDeleting(false);
     }
   };
-
+ 
   return (
     <div className="w-full max-w-md bg-white border border-gray-200 rounded-3xl p-5 shadow-2xl transition-all duration-200 text-gray-800">
       {/* Header */}
@@ -212,8 +217,9 @@ const updateWallet = useWalletStore((state) => state.updateWallet);
                 </label>
                 <div className="flex items-center gap-1.5 bg-gray-50 rounded-xl border border-gray-100 min-h-10.5">
                   <span className="flex gap-1 justify-center items-center text-sm font-semibold text-gray-900">
-                    {item?.walletType ==="Tiền mặt" ? <Banknote color="green" /> : <Landmark />}
-                    {item?.walletType || "Không xác định"}
+                    {walletName ==="Tiền mặt" ? <Banknote color="green" /> : <Landmark />}
+                   
+                    {walletName || "Không xác định"}
                   </span>
                 </div>
               </div>

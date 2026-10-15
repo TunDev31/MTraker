@@ -1,5 +1,5 @@
 import { ArrowLeft, LockKeyhole, Settings } from "lucide-react";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import avatar from "../assets/avatarImg.png";
 import { userStore } from "@/stores/useAuthStore";
 import { useWalletStore } from "@/stores/useWalletStore";
@@ -58,7 +58,7 @@ const PersonalPage = () => {
           <div className="flex flex-col justify-between items-center bg-[#E5EEFF] rounded-xl py-1 text-sm px-0.5 ">
             <p>Giao dịch</p>
             <p className="text-black font-bold  text-xl">
-              {transReport?.count}
+              {transReport?.totalCount}
             </p>
           </div>
           <div className="flex flex-col justify-between items-center bg-[#E5EEFF] rounded-xl py-1 text-sm ">

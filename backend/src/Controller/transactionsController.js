@@ -169,6 +169,7 @@ export const getTransReport = async (req, res) => {
     }
 
     const range = getDateRange(selectedDateFilter, offset);
+    const totalCount = await Transaction.countDocuments();
     if (!range) {
       return res.status(400).json({ message: "Bo loc ngay khong hop le" });
     }
@@ -239,6 +240,7 @@ export const getTransReport = async (req, res) => {
       totalExpense: summaryAll.totalExpense,
       balance: summaryAll.totalIncome - summaryAll.totalExpense,
       byTag,
+      totalCount
     });
   } catch (error) {
     console.error("Loi khi get trans report:", error);

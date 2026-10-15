@@ -100,14 +100,14 @@ const MoneyManager = ({ setWalletForm }) => {
 
       {/* Hành động */}
       <div className="grid grid-cols-2 gap-3">
-        <button
+        {/* <button
           type="button"
           onClick={() => setWalletForm(true)}
           className="flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 text-sm font-semibold text-gray-900 transition hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
         >
           <Plus size={16} />
           Thêm ví mới
-        </button>
+        </button> */}
 
         <button
           type="button"

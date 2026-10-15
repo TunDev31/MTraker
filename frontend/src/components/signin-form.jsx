@@ -37,7 +37,8 @@ export function SignInForm({ className, ...props }) {
   const onSubmit = async (data) => {
     const { userName, password } = data;
     const success = await signIn(userName, password);
-    if (success) navigate("/");
+    navigate("/");
+    
   };
   return (
     <div className={cn("flex flex-col gap-3 ", className)} {...props}>
@@ -56,7 +57,7 @@ export function SignInForm({ className, ...props }) {
                 <div className="flex flex-col gap-1">
                   <h1 className="text-3xl font-bold">Đăng nhập tài khoản</h1>
                   <h2 className="text-sm text-muted-foreground">
-                    Quản lí tài chính cá nhân thông minh
+                    Quản lí tài chính cá nhân
                   </h2>
                 </div>
               </div>
@@ -120,7 +121,7 @@ export function SignInForm({ className, ...props }) {
                 className=" w-full mx-auto px-5 py-3 rounded-xl bg-[#00652C] text-white font-bold text-xl"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
+               Đăng nhập
               </button>
               <div className="text-center text-sm">
                 Chưa có tài khoản?{" "}
