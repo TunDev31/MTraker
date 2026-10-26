@@ -4,7 +4,7 @@ import { PieChartIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SectionComponent from "./Section";
 import TransactionsIcon from "./TransactionsIcon";
-import ChartTooltip from "./ChartTooltip";
+import ChartTooltip from "./ChartToolTip";
 import { ICON_CLASS } from "@/utils/SpendingUtils/TransactionsIconUtils";
 import { TAG_CONFIG } from "@/utils/temp/tagOption";
 import { buildPie } from "@/utils/ChartUtils.js/PieChart";

@@ -11,9 +11,8 @@ import {
 } from "recharts";
 import { BarChart2 } from "lucide-react";
 import SectionComponent from "./Section";
-import ChartTooltip from "./ChartTooltip";
-import { buildTrendData, getTrendCount } from "@/utils/ChartUtils.js/TrendUtils";
-import { useTransactionsStore } from "@/stores/useTransactionsStore";
+import ChartTooltip from "./ChartToolTip";
+
 
 const formatAxis = (v) =>
   v >= 1_000_000

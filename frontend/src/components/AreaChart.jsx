@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { TrendingUp } from "lucide-react";
 import SectionComponent from "./Section";
-import ChartTooltip from "./ChartTooltip";
+import ChartTooltip from "./ChartToolTip";
 
 
 const formatAxis = (v) =>
