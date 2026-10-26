@@ -33,7 +33,7 @@ const MoneyManager = ({ setWalletForm }) => {
   }, [userWallet]);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:hidden">
       {/* Thẻ gradient */}
       <div
         key={currWalletName}
@@ -98,26 +98,7 @@ const MoneyManager = ({ setWalletForm }) => {
         </div>
       </div>
 
-      {/* Hành động */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* <button
-          type="button"
-          onClick={() => setWalletForm(true)}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 text-sm font-semibold text-gray-900 transition hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
-        >
-          <Plus size={16} />
-          Thêm ví mới
-        </button> */}
-
-        <button
-          type="button"
-          onClick={() => setOpenTransferForm(true)}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-green-800 text-sm font-semibold text-white transition hover:bg-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
-        >
-          <ArrowLeftRight size={16} />
-          Nạp / Rút tiền
-        </button>
-      </div>
+     
 
       {openTransferForm && (
         <WalletTransferForm setWalletTransferForm={setOpenTransferForm} />

@@ -1,24 +1,26 @@
 import Transaction from "../Model/Transaction.js";
 import mongoose from "mongoose";
-import { getDateRange } from "../utils/DatePeriodUtils.js";
+import { getDateRange, makeLabel, VALID_FILTERS } from "../utils/DatePeriodUtils.js";
 // 1. GET ALL TRANSACTIONS
 export const getAllTransactions = async (req, res) => {
   try {
-    const userId = req.user._id;
-     const { offSet, selectedDateFilter } = req.query;
-      
+    const userId = new mongoose.Types.ObjectId(req.user._id);;
+    const { offSet, selectedDateFilter } = req.query;
+
     const offset = parseInt(offSet, 10);
     if (isNaN(offset) || offset < 0) {
     
       return res.status(400).json({ message: "offset khong hop le" });
     }
-
+    
     const range = getDateRange(selectedDateFilter, offset);
+  
+    
     if (!range) {
       return res.status(400).json({ message: "Bo loc ngay khong hop le" });
     }
     const transactions = await Transaction.aggregate([
-      { $match: { userId, createdAt: { $gte: range.start, $lt: range.end } } },
+        { $match: { userId, createdAt: { $gte: range.start, $lt: range.end }} },
     ])
     return res.status(200).json(transactions);
   } catch (error) {
@@ -167,8 +169,9 @@ export const getTransReport = async (req, res) => {
     
       return res.status(400).json({ message: "offset khong hop le" });
     }
-
+    
     const range = getDateRange(selectedDateFilter, offset);
+  
     const totalCount = await Transaction.countDocuments();
     if (!range) {
       return res.status(400).json({ message: "Bo loc ngay khong hop le" });
@@ -179,6 +182,8 @@ export const getTransReport = async (req, res) => {
       {
         $facet: {
           allTrans: [
+           
+            
             {
               $group: {
                 _id: null,
@@ -192,6 +197,7 @@ export const getTransReport = async (req, res) => {
               },
             },
           ],
+         
           byTag: [
             {
               $group: {
@@ -209,7 +215,7 @@ export const getTransReport = async (req, res) => {
                 count: 1,
               },
             },
-            { $sort: { total: -1 } },
+          { $sort: { type: 1, amount: -1 } }
           ],
         },
       },
@@ -244,6 +250,61 @@ export const getTransReport = async (req, res) => {
     });
   } catch (error) {
     console.error("Loi khi get trans report:", error);
+    return res.status(500).json({ message: "Loi he thong" });
+  }
+};
+export const getTransTrend = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user._id);
+    const { selectedDateFilter, count } = req.query;
+
+    const n = parseInt(count, 10);
+    if (!VALID_FILTERS.includes(selectedDateFilter)) {
+      return res.status(400).json({ message: "Bo loc ngay khong hop le" });
+    }
+    if (isNaN(n) || n < 1 || n > 12) {
+      return res.status(400).json({ message: "count khong hop le (1-12)" });
+    }
+
+    // Các mốc từ cũ đến mới: offset n-1 → 0
+    const periods = [];
+    for (let i = n - 1; i >= 0; i--) {
+      const range = getDateRange(selectedDateFilter, i);
+      if (!range) {
+        return res.status(400).json({ message: "Bo loc ngay khong hop le" });
+      }
+      periods.push({ ...range, label: makeLabel(selectedDateFilter, range.start) });
+    }
+
+    // Mỗi mốc là một nhánh của $facet
+    const facet = {};
+    periods.forEach((p, i) => {
+      facet[`p${i}`] = [
+        { $match: { createdAt: { $gte: p.start, $lt: p.end } } },
+        { $group: { _id: "$type", total: { $sum: "$amount" } } },
+      ];
+    });
+
+    const [data] = await Transaction.aggregate([
+      {
+        // lọc thô 1 lần cho toàn khoảng để dùng được index
+        $match: {
+          userId,
+          createdAt: { $gte: periods[0].start, $lt: periods[n - 1].end },
+        },
+      },
+      { $facet: facet },
+    ]);
+
+    const trend = periods.map((p, i) => {
+      const rows = data[`p${i}`] || [];
+      const sum = (type) => rows.find((r) => r._id === type)?.total || 0;
+      return { label: p.label, expense: sum("expense"), income: sum("income") };
+    });
+
+    return res.status(200).json(trend);
+  } catch (error) {
+    console.error("Loi khi get trans trend:", error);
     return res.status(500).json({ message: "Loi he thong" });
   }
 };

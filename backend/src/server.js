@@ -11,6 +11,7 @@ import cookieParser from 'cookie-parser'
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import userRoutes from './Routes/userRoutes.js'
 import walletRoute from './Routes/walletRoute.js'
+import spedingLimitRoute from './Routes/spendingLimitsRoute.js'
 dns.setServers(["8.8.8.8"]);
 dotenv.config();
 
@@ -54,7 +55,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", protectedRoute, userRoutes);
 app.use("/api/transactions", protectedRoute, transactionsRoute);
 app.use("/api/wallets", protectedRoute, walletRoute);
-
+app.use("/api/config", protectedRoute, spedingLimitRoute)
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(frontendDistPath));

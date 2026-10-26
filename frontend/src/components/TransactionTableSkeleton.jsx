@@ -13,7 +13,7 @@ const TransactionRowSkeleton = () => (
 
 const TransactionTableSkeleton = ({ rows = 4 }) => (
   <div
-    className="mt-3 mb-16 flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm"
+    className="md:hidden mt-3 mb-16 flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm"
     aria-busy="true"
     aria-label="Đang tải giao dịch"
   >

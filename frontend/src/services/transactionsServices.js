@@ -1,9 +1,21 @@
-import api from "@/lib/axios";
-export const getAllTransactions = (params) => api.get("/transactions",{params});
-export const getTransAnalyze = (params) =>
-  api.get("/transactions/analyze", { params });
-export const createTransaction = (transaction, walletId) => api.post(`/transactions`, { ...transaction, walletId });
-export const updateTransaction = (transactionId, data) =>
-  api.put(`/transactions/${transactionId}`, data);
-export const deleteTransaction = (transactionId) =>
-  api.delete(`/transactions/${transactionId}`);
+import {
+  createTransactionApi,
+  deleteTransactionApi,
+  getAllTransactionsApi,
+  getTransAnalyzeApi,
+  getTransTrend,
+  updateTransactionApi,
+} from "@/components/api/transactionsApi";
+
+
+export const transactionsService = {
+  getAllTransactions: async (params) => getAllTransactionsApi(params),
+  createTransaction: async (data, walletId) => 
+    createTransactionApi(data, walletId),
+getTransTrend : async (params) => getTransTrend(params),
+  getTransAnalyze:async (params)=> getTransAnalyzeApi(params) ,
+  updateTransaction: async (transactionId, data) =>
+    updateTransactionApi(transactionId, data),
+  deleteTransaction: async (transactionId) =>
+    deleteTransactionApi(transactionId),
+};

@@ -1,10 +1,12 @@
 import { ArrowLeft, LockKeyhole, Settings } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import avatar from "../assets/avatarImg.png";
 import { userStore } from "@/stores/useAuthStore";
 import { useWalletStore } from "@/stores/useWalletStore";
 import { useTransactionsStore } from "@/stores/useTransactionsStore";
 import PersonalPageSkeleton from "@/components/PersonalPageSkeleton";
+import UserSettingsModal from "@/components/UserSettingsModal";
+
 const PersonalPage = () => {
   const user = userStore((state) => state.user);
   const userLoading = userStore((state) => state.loading);
@@ -17,18 +19,29 @@ const PersonalPage = () => {
   const transReport = useTransactionsStore((state) => state.report);
   const reportLoading = useWalletStore((s) => s.reportLoading);
   const isLoading = userLoading || (reportLoading && !report);
+
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   useEffect(() => {
     fetchReport();
   }, [wallet, trans]);
+
   const date = user?.createdAt;
   if (isLoading) return <PersonalPageSkeleton />;
+
   const joinDate = new Date(date);
   return (
     <div className="flex flex-col gap-3 p-4 ">
       <div className="flex justify-between items-center p-1">
         <ArrowLeft size={28} className="bg-[#EFF4FF]" />
         <h1>Trang cá nhân</h1>
-        <Settings size={28} className="bg-[#EFF4FF]" />
+        <button
+          onClick={() => setSettingsOpen(true)}
+          className="p-1 rounded-lg hover:bg-[#E0E7FF] transition-colors"
+          title="Cài đặt"
+        >
+          <Settings size={28} className="text-gray-600" />
+        </button>
       </div>
 
       <div className="flex flex-col gap-1 justify-center items-center bg-white rounded-xl p-3">
@@ -69,6 +82,11 @@ const PersonalPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      {settingsOpen && (
+        <UserSettingsModal onClose={() => setSettingsOpen(false)} />
+      )}
     </div>
   );
 };

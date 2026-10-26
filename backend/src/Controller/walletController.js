@@ -68,3 +68,20 @@ export const getAnalyzeReport = async (req, res)=> {
         res.status(501).json({message:"Loi he thong!"});
     }
 }
+
+export const deleteWallet = async (req, res) => {
+    try {
+        const { walletId } = req.params;
+        const userId = req.user._id;
+       
+       
+       
+       
+        const wallet  = await Wallet.findOneAndDelete({ _id: walletId, userId });
+        if (!wallet) return res.status(404).json({ message: "Wallet not found" });
+        return res.status(200).json(wallet);
+    } catch (error) {
+        console.log("Lỗi khi del wallet ");
+        res.status(501).json({message:"Loi he thong!"});
+    }
+}

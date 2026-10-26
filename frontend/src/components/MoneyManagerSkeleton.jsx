@@ -10,7 +10,7 @@ const CARD_STYLE = {
 
 const MoneyManagerSkeleton = () => {
   return (
-    <div className="flex flex-col gap-3" aria-busy="true" aria-label="Đang tải ví">
+    <div className="flex flex-col gap-3 md:hidden" aria-busy="true" aria-label="Đang tải ví" >
       {/* Thẻ */}
       <div
         style={CARD_STYLE}

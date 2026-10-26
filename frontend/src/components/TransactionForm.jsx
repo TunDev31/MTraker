@@ -9,52 +9,66 @@ import { useTransactionsStore } from "@/stores/useTransactionsStore";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { Check, TrendingDown, TrendingUp } from "lucide-react";
-
+import { useFormStore } from "@/stores/useFormStore";
+import { TAG_OPTIONS } from "@/utils/temp/tagOption";
 
 // 1. Định nghĩa Zod Schema
-const transactionSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Bạn chưa nhập tên giao dịch!")
-    .max(20, "Tên giao dịch tối đa chỉ 20 kí tự!"),
-  amount: z.coerce
-    .number({ invalid_type_error: "Vui lòng nhập số!" })
-    .positive("Số tiền phải lớn hơn 0!")
-    .int("Số tiền phải là số nguyên!"),
-  description: z.string().max(100, "Mô tả chỉ tối đa 100 ký tự!").optional(),
-  tag: z.string().min(1, "Vui lòng chọn ít nhất 1 tag!"),
-  type: z.enum(["expense", "income"], {
-    errorMap: () => ({ message: "Loại giao dịch không hợp lệ!" }),
-  }),
-  walletId: z.string().min(1, "Bạn chưa chọn ví để thực hiện giao dịch!"),
-});
 
-
-
-const TAG_OPTIONS = [
-  { label: "ĂN UỐNG", value: "food" },
-  { label: "ĐI LẠI", value: "travel" },
-  { label: "GIẢI TRÍ", value: "entertainment" },
-  { label: "MUA SẮM", value: "shopping" },
-  { label: "KHÁC", value: "khac" },
-];
-const TransactionForm = ({ setIsOpenForm }) => {
+const TransactionForm = () => {
   // 2. Lấy danh sách ví từ Zustand Store
   const getWalletOptions = useWalletStore((state) => state.getWalletOptions);
   const updateWallet = useWalletStore((state) => state.updateWallet);
+  const getWalletById = useWalletStore((state) => state.getWalletById);
   const options = getWalletOptions ? getWalletOptions() : [];
-  const selectedWallet = useWalletStore((s)=>s.selectedWallet);
+  const selectedWallet = useWalletStore((s) => s.selectedWallet);
   const createTransaction = useTransactionsStore(
     (state) => state.createTransaction,
   );
-const defaultFormValues = {
-  title: "",
-  amount: "",
-  description: "",
-  tag: "",
-  type: "expense",
-  walletId: selectedWallet.walletId,
-};
+
+  const transactionSchema = z
+    .object({
+      title: z
+        .string()
+        .min(1, "Bạn chưa nhập tên giao dịch!")
+        .max(20, "Tên giao dịch tối đa chỉ 20 kí tự!"),
+
+      amount: z.coerce
+        .number({ invalid_type_error: "Vui lòng nhập số!" })
+        .positive("Số tiền phải lớn hơn 0!")
+        .int("Số tiền phải là số nguyên!"),
+
+      description: z
+        .string()
+        .max(100, "Mô tả chỉ tối đa 100 ký tự!")
+        .optional(),
+      tag: z.string().min(1, "Vui lòng chọn ít nhất 1 tag!"),
+      type: z.enum(["expense", "income"], {
+        errorMap: () => ({ message: "Loại giao dịch không hợp lệ!" }),
+      }),
+      walletId: z.string().min(1, "Bạn chưa chọn ví để thực hiện giao dịch!"),
+    })
+    .superRefine((data, ctx) => {
+      if (data.type !== "expense") return;
+
+      const wallet = getWalletById(data.walletId);
+      const balance = wallet?.remainAmount ?? 0; // đổi "balance" đúng tên field số dư trong store của bạn
+
+      if (data.amount > balance) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["amount"], // hiện lỗi ngay dưới ô số tiền
+          message: `Số dư ví không đủ (còn ${balance.toLocaleString("vi-VN")}đ)!`,
+        });
+      }
+    });
+  const defaultFormValues = {
+    title: "",
+    amount: "",
+    description: "",
+    tag: "",
+    type: "expense",
+    walletId: selectedWallet.walletId,
+  };
   // 3. Khởi tạo useForm
   const {
     register,
@@ -62,29 +76,34 @@ const defaultFormValues = {
     control,
     watch,
     setValue,
+    getValues,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(transactionSchema),
     defaultValues: defaultFormValues,
+    mode: "onChange",
   });
   const type = watch("type");
-
+  const walletCurrSelected = watch("walletId");
+  const walletRemain = getWalletById(walletCurrSelected);
+  const setOpenForm = useFormStore((s) => s.setOpenForm);
   // Chi tiêu: hiện mọi tag trừ "khac". Thu nhập: chỉ hiện "khac"
   const visibleTags = TAG_OPTIONS.filter((t) =>
-    type === "income" ? t.value === "khac" : t.value !== "khac",
+    type === "income" ? t.value === "salary" : t.value !== "salary",
   );
   const onSubmit = async (data) => {
     try {
       const { walletId, ...transactionData } = data;
+
       const success = await createTransaction(transactionData, walletId);
-      
+
       if (success) {
-       
-        const {walletId, amount, type} = data;
+        const { walletId, amount, type } = data;
 
         updateWallet(walletId, amount, type);
-         toast("Thêm giao dịch thành công!");
-        setIsOpenForm(false);
+        toast("Thêm giao dịch thành công!");
+        setOpenForm();
       }
     } catch (error) {
       console.error("Lỗi khi tạo giao dịch:", error);
@@ -94,10 +113,13 @@ const defaultFormValues = {
   useEffect(() => {
     setValue("tag", type === "income" ? "khac" : "");
   }, [type, setValue]);
+  useEffect(() => {
+  if (getValues("amount") !== "") trigger("amount");
+}, [walletCurrSelected, type, trigger, getValues]);
   return (
     <div
       className="fixed inset-0 z-50 w-full h-full bg-black/60 backdrop-blur-sm p-4 flex items-center justify-center"
-      onClick={() => setIsOpenForm(false)}
+      onClick={() => setOpenForm()}
     >
       <div
         className="relative w-full max-w-lg bg-white text-black rounded-2xl p-5 shadow-2xl border border-gray-800"
@@ -115,7 +137,7 @@ const defaultFormValues = {
           </div>
           <button
             type="button"
-            onClick={() => setIsOpenForm(false)}
+            onClick={() => setOpenForm()}
             className="text-black bg-gray-200 rounded-md hover:text-red-500 text-xl font-bold p-2 transition-colors leading-none"
           >
             ✕
@@ -162,11 +184,12 @@ const defaultFormValues = {
                   className="flex items-center justify-center gap-2 rounded-xl bg-[#EFF4FF] py-2.5 text-center text-sm font-semibold text-[#0F172A] transition
                    peer-checked:border-white peer-checked:bg-red-100 peer-checked:text-red-800
                    peer-focus-visible:ring-2 peer-focus-visible:ring-white peer-focus-visible:ring-offset-2"
-                ><span className="flex gap-1 justify-center items-center text-sm font-medium">
-                  <TrendingDown />
-                  <p>Chi tiêu</p>
-                </span></div>
-                
+                >
+                  <span className="flex gap-1 justify-center items-center text-sm font-medium">
+                    <TrendingDown />
+                    <p>Chi tiêu</p>
+                  </span>
+                </div>
               </label>
 
               <label className=" cursor-pointer transition-all">
@@ -180,11 +203,12 @@ const defaultFormValues = {
                   className="flex items-center justify-center gap-2 rounded-xl bg-[#EFF4FF] py-2.5 text-center text-sm font-semibold text-[#0F172A] transition
                    peer-checked:border-white peer-checked:bg-green-200 peer-checked:text-green-800
                    peer-focus-visible:ring-2 peer-focus-visible:ring-white peer-focus-visible:ring-offset-2"
-                ><span className="flex gap-1 justify-center items-center text-sm font-medium ">
-                  <TrendingUp />
-                  <p>Thu nhập</p>
-                </span></div>
-                
+                >
+                  <span className="flex gap-1 justify-center items-center text-sm font-medium ">
+                    <TrendingUp />
+                    <p>Thu nhập</p>
+                  </span>
+                </div>
               </label>
             </div>
             {errors.type && (
@@ -205,7 +229,7 @@ const defaultFormValues = {
                   value={field.value}
                   onChange={field.onChange}
                   data={options}
-                  className='w-full bg-[#EFF4FF] border border-gray-700'
+                  className="w-full bg-[#EFF4FF] border border-gray-700"
                   placeholder="Chọn ví để thực hiện giao dịch"
                 />
               )}
@@ -256,16 +280,15 @@ const defaultFormValues = {
                     className=" w-4 h-4 peer sr-only"
                     {...register("tag")}
                   />
-                   <div
-                  className="flex items-center justify-center w-full rounded-xl border border-gray-700 bg-[#EFF4FF] py-2.5 text-center text-sm font-semibold text-[#0F172A] transition
+                  <div
+                    className="flex items-center justify-center w-full rounded-xl border border-gray-700 bg-[#EFF4FF] py-2.5 text-center text-sm font-semibold text-[#0F172A] transition
                    peer-checked:border-white peer-checked:bg-green-200 peer-checked:text-green-800
                    peer-focus-visible:ring-2 peer-focus-visible:ring-white peer-focus-visible:ring-offset-2"
-                ><span className="text-xs font-medium text-black">
-
-
-                    {tagItem.label}
-                  </span></div>
-                  
+                  >
+                    <span className="text-xs font-medium text-black">
+                      {tagItem.label}
+                    </span>
+                  </div>
                 </label>
               ))}
             </div>

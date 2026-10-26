@@ -1,21 +1,18 @@
-import {
-  getAllTransactions,
-  updateTransaction as updateTransactionApi,
-  deleteTransaction as deleteTransactionApi,
-  createTransaction as createTransactionApi,
-  getTransAnalyze,
-} from "@/services/transactionsServices.js";
+
+
+import { transactionsService } from "@/services/transactionsServices";
 import { create } from "zustand";
 
 export const useTransactionsStore = create((set, get) => ({
   transactions: [],
   loading: false,
   report: null,
+  trend: [],
   fetchTransAnalyze: async (params)=> {
     try {
       set({loading:true});
     
-      const report = await getTransAnalyze(params);
+      const report = await transactionsService.getTransAnalyze(params);
    
       set({report :report.data});
       return true;
@@ -27,10 +24,26 @@ export const useTransactionsStore = create((set, get) => ({
       set({loading:false})
     }
   },
+  
+  fetchTransTrend : async (params) => {
+    try {
+      set({loading: true});
+      const res = await transactionsService.getTransTrend(params);
+    
+      set({trend: res.data});
+      return true;
+    } catch (error) {
+      
+   console.error("Loi khi lay trans!", error);
+      return false;
+    } finally {
+      set({ loading: false });
+  }},
+
   fetchTransactions: async (params) => {
     try {
       set({ loading: true });
-      const res = await getAllTransactions(params);
+      const res = await  transactionsService.getAllTransactions(params);
      
       set({ transactions: res.data });
      
@@ -43,7 +56,7 @@ export const useTransactionsStore = create((set, get) => ({
   },
   createTransaction: async (data,walletId) => {
     try {
-      const res = await createTransactionApi(data, walletId);
+      const res = await  transactionsService.createTransaction(data, walletId);
       set({ transactions: [res.data, ...get().transactions] });
       return true;
     } catch (error) {
@@ -56,7 +69,7 @@ export const useTransactionsStore = create((set, get) => ({
     try {
       set({ loading: true });
    
-      await updateTransactionApi(newTransaction._id, newTransaction);
+      await  transactionsService.updateTransaction(newTransaction._id, newTransaction);
       const updated = get().transactions.map((t) =>
         t._id === newTransaction._id ? newTransaction : t,
       );
@@ -76,7 +89,7 @@ export const useTransactionsStore = create((set, get) => ({
     const prev = get().transactions;
     set({ transactions: prev.filter((t) => t._id !== id) });
     try {
-      await deleteTransactionApi(id);
+      await transactionsService.deleteTransaction(id);
        
       return true;
     } catch (error) {

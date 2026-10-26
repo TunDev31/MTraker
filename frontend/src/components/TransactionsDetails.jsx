@@ -15,10 +15,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTransactionsStore } from "@/stores/useTransactionsStore";
-import UpdatingTransForm, { TAG_CONFIG } from "./UpdatingTransForm";
+import UpdatingTransForm from "./UpdatingTransForm";
 import TransactionsIcon from "./TransactionsIcon";
 import { ICON_CLASS, ICON_COLOR, ICON_MAP, ICON_TEXTCOLOR } from '@/utils/SpendingUtils/TransactionsIconUtils'
 import { useWalletStore } from "@/stores/useWalletStore";
+import { TAG_CONFIG } from "@/utils/temp/tagOption";
 const TransactionsDetails = ({ item, onClose }) => {
   const [isRewriteEnable, setRewriteEnable] = useState(false);
 

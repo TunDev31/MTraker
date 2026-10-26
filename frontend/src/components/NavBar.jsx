@@ -1,11 +1,16 @@
 import { cn } from "@/lib/utils";
+import { useFormStore } from "@/stores/useFormStore";
 import { House, Plus, User } from "lucide-react";
 import React from "react";
 import { NavLink } from "react-router";
 
 const NavBar = ({ setIsOpenForm }) => {
+  const setOpenForm = useFormStore((s)=> s.setOpenForm);
+
   return (
-    <nav className="fixed bottom-0 left-0 z-50 w-full   border-gray-200 bg-white shadow-lg pb-[env(safe-area-inset-bottom)]">
+    <nav className="
+
+    fixed bottom-0 left-0 z-50 w-full   border-gray-200 bg-white shadow-lg pb-[env(safe-area-inset-bottom)]">
       <div className="grid h-16 grid-cols-3 items-center p-2">
         {/* Cột trái: để trống, hoặc thêm một mục như "Trang chủ" */}
         <NavLink
@@ -27,7 +32,7 @@ const NavBar = ({ setIsOpenForm }) => {
        
           <button
             type="button"
-            onClick={() => setIsOpenForm(true)}
+            onClick={() => setOpenForm()}
             aria-label="Thêm giao dịch"
             className=" flex items-center justify-center rounded-full transition-colors "
           >

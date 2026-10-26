@@ -17,24 +17,13 @@ import { cn } from "@/lib/utils";
 import MyCombobox from "./ui/MyCombobox";
 import { useTransactionsStore } from "@/stores/useTransactionsStore";
 import { useWalletStore } from "@/stores/useWalletStore";
+import { TAG_CONFIG } from "@/utils/temp/tagOption";
 
 // Dùng chung với TransactionsDetails (import từ file này).
 // Nếu muốn gọn hơn, có thể chuyển ra file riêng, ví dụ "@/constants/tags".
-export const TAG_CONFIG = {
-  food: { label: "Ăn uống", icon: Utensils },
-  travel: { label: "Đi lại", icon: Van },
-  entertainment: { label: "Giải trí", icon: Film },
-  shopping: { label: "Mua sắm", icon: ShoppingCart },
-  khac: { label: "Khác", icon: HelpCircle },
-  none: { label: "Không có tag", icon: Ban },
-};
 
-/**
- * Form chỉnh sửa giao dịch.
- * @param item      giao dịch đang sửa
- * @param onCancel  gọi khi bấm Hủy
- * @param onSaved   gọi khi lưu thành công
- */
+
+
 const UpdatingTransForm = ({ item, onCancel, onSaved }) => {
   const wallets = useWalletStore((state) => state.wallets);
   const walletOptions = useMemo(

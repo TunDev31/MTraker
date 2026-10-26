@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         sparse: true
     },
+    //TEMP MODEL
+    
+
+    
     
 },{
     timestamps : true

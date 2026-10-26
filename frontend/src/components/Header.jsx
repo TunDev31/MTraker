@@ -19,16 +19,16 @@ const Header = ({ setSelectedDateFilter,setOffset }) => {
   });
   return (
     <header
-      className="flex w-full items-center justify-between  border-b-2
+      className="flex w-full items-center justify-between  border-b-2 md:hidden
      border-b-black bg-white/80  backdrop-blur-md z-50 "
     >
       <div className="flex items-center gap-1 group cursor-pointer justify-center mb-2">
         <CircleDollarSign className="w-7 h-7 text-green-700 transition-transform group-hover:scale-105" />
-        <div>
+        <div className="flex items-center justify-center">
           <h1 className="text-xl font-bold tracking-tight text-black bg-clip-text group-hover:scale-105 transition-transform">
             MTracker
           </h1>
-           <p className="text-xs sm:text-sm font-medium">{formattedDate}</p>
+           
         </div>
       </div>
 

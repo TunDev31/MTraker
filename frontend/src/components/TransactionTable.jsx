@@ -72,7 +72,7 @@ function TransactionTable({ setOffSet, offSet, selectedDateFilter }) {
       />
     </div>
   ) : (
-    <div className="mt-3 mb-16 flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+    <div className=" md:hidden mt-3 mb-16 flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
       <div>
         {/* Header giữ nguyên, chỉ thêm disabled khi đang tải */}
         <div className="flex items-center justify-between border-b border-black/5 bg-white px-3 py-2 text-xs font-bold text-(--credit-bg-color) uppercase">
